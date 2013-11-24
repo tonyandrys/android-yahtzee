@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:background="@drawable/teal_felt"
+                android:id="@+id/game_container_framelayout">
+
+    <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true" android:id="@+id/dice_container_tablelayout"
+            android:stretchColumns="*">
+        <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:layout_marginTop="10dp">
+            <ImageView
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:id="@+id/die_1_imageview" android:layout_column="0" android:src="@drawable/diceface_1"
+                    android:tag="0"/>
+            <ImageView android:layout_width="75dp" android:layout_height="75dp" android:id="@+id/die_2_imageview"
+                       android:layout_column="1" android:src="@drawable/diceface_1" android:tag="1"/>
+            <ImageView android:layout_width="75dp" android:layout_height="75dp" android:id="@+id/die_3_imageview"
+                       android:layout_column="2" android:src="@drawable/diceface_1" android:tag="2"/>
+        </TableRow>
+        <TableRow
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent" android:layout_marginTop="10dp">
+            <ImageView android:layout_width="75dp" android:layout_height="75dp" android:id="@+id/die_4_imageview"
+                       android:layout_column="0" android:src="@drawable/diceface_1" android:layout_weight="1"
+                       android:tag="3"/>
+            <ImageView android:layout_width="75dp" android:layout_height="75dp" android:id="@+id/die_5_imageview"
+                       android:layout_column="1" android:src="@drawable/diceface_1" android:layout_weight="1"
+                       android:tag="5"/>
+        </TableRow>
+    </TableLayout>
+    <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:id="@+id/scorepad_container_framelayout"
+            android:background="#FFFFFF" android:layout_alignParentBottom="true">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scorepad"
+                android:id="@+id/textView" android:textSize="20sp" android:layout_marginLeft="5dp"/>
+    </FrameLayout>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/roll"
+            android:id="@+id/roll_dice_button" android:layout_centerHorizontal="true"
+            android:layout_below="@+id/dice_container_tablelayout" android:background="@drawable/gray_rounded_button"
+            android:layout_marginTop="10dp"/>
+</RelativeLayout>
