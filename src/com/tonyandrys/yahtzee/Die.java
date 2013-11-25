@@ -45,6 +45,14 @@ public class Die {
     }
 
     /**
+     * Returns the current value of this die as an integer
+     * @return integer value of face
+     */
+    public int getValue() {
+        return this.value;
+    }
+
+    /**
      * Retrieves the visual representation (face) for this dice based on its current value.
      * @return Drawable of die face
      */

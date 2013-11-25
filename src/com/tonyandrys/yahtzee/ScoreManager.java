@@ -24,6 +24,7 @@ public class ScoreManager {
     final static public int COUNT_THREE_OF_A_KIND = 3;
     final static public int COUNT_FOUR_OF_A_KIND = 4;
     final static public int COUNT_YAHTZEE = 5;
+    final static public int COUNT_PAIR = 2;
 
     // TreeSet integer constants for checking if straights exist
     final static public int TREE_COUNT_LARGE_STRAIGHT = 5;
@@ -57,6 +58,13 @@ public class ScoreManager {
         // Calculate the top half score
         scoreCard = tabulateTopHalf(countList, scoreCard);
 
+        // Calculate straights if they exist
+        scoreCard = tabulateStraights(diceValues, scoreCard);
+
+        // Calculate the bottom half score
+        scoreCard = tabulateBottomHalf(countList, scoreCard);
+
+        // Return the calculated ScoreCard
         return new ScoreCard();
     }
 
@@ -74,21 +82,21 @@ public class ScoreManager {
         int[] diceCount = {0, 0, 0, 0, 0, 0};
 
         // Sort the list of diceValues
-        for (int i=0; i<=5; i++) {
+        for (int i=0; i<diceValues.length; i++) {
             // Get the next value from the array
             int val = diceValues[i];
 
             // Get the stored count of this integer and increment it.
-            diceCount[val]++;
+            diceCount[val-1]++;
         }
 
         // Once all the dice counts are updated, write the cardinality list and return.
         Log.v(TAG, "Hand Processed." );
-        Log.v(TAG, "Dice counts - Ones: " + diceCount[0] + "Twos: " + diceCount[1] + "Threes: " + diceCount[2] + "Fours: " + diceCount[3] + "Fives: " + diceCount[4] + "Sixes: " + diceCount[5]);
+        Log.v(TAG, "Dice counts - Ones: " + diceCount[0] + " Twos: " + diceCount[1] + " Threes: " + diceCount[2] + " Fours: " + diceCount[3] + " Fives: " + diceCount[4] + "S ixes: " + diceCount[5]);
 
         // Convert to ArrayList to ease checking set membership when tabulating score.
         ArrayList<Integer> countList = new ArrayList<Integer>();
-        for (int i=0; i<=countList.size(); i++) {
+        for (int i=0; i<diceCount.length; i++) {
             countList.add(i, diceCount[i]);
         }
 
@@ -154,12 +162,12 @@ public class ScoreManager {
      * @param diceValues Set of dice values as integers
      * @return Returns the passed ScoreCard object with straight scores written to it.
      */
-    public ScoreCard tabulateStraightScores(int[] diceValues, ScoreCard scoreCard) {
+    public ScoreCard tabulateStraights(int[] diceValues, ScoreCard scoreCard) {
 
         // Construct a TreeSet and add dice values to it. A TreeSet conveniently removes duplicates and we get
         // sorting for free. Thanks to Gabriel Negut of StackOverflow for this optimization!
         TreeSet<Integer> enumTree = new TreeSet<Integer>();
-        for (int i=0; i<=diceValues.length; i++) {
+        for (int i=0; i<diceValues.length; i++) {
             enumTree.add(diceValues[i]);
         }
 
@@ -181,6 +189,8 @@ public class ScoreManager {
             Log.v(TAG, "---");
         }
 
+        return scoreCard;
+
     }
 
     /**
@@ -189,17 +199,53 @@ public class ScoreManager {
      * @param scoreCard ScoreCard object to write calculated values to.
      * @Return Returns the passed ScoreCard object with the top half scores written to it.
      */
-    public ScoreCard tabulateBottomHalfScore(ArrayList<Integer> countList, ScoreCard scoreCard) {
+    public ScoreCard tabulateBottomHalf(ArrayList<Integer> countList, ScoreCard scoreCard) {
 
-        // FIXME: This can be optimized when confirmed it works! Ex - A yahtzee implies of 4 of a kind, a 4 of a kind implies of 3 of a kind, etc. No need to check and perform all of those linear scans.
-
-        // Yahtzee - Applied if any dice count equals 5.
-        if (playerScoreCard.getYahtzee() == 0 && countList.contains(COUNT_YAHTZEE)) {
-            Log.v(TAG, "Yahtzee: " + COUNT_YAHTZEE);
+        // Bottom half scores often award points based on the sum of the hand, so calculate this now. FIXME: OPTIMIZATION! perform this only if necessary (i.e. a 3ofakind, 4ofakind, chance hasn't been used, etc)
+        int diceSum = 0;
+        for (int i=0; i<countList.size(); i++) {
+            diceSum += (countList.get(i) * (i+1));
         }
 
-        if (playerScoreCard.getFourOfAKind() == 0 || )
+        Log.v(TAG, "---");
+        Log.v(TAG, "Sum of all dice is: " + Integer.toString(diceSum));
 
+        // FIXME: Most of this can be optimized when confirmed it works! Ex - A yahtzee implies of 4 of a kind, a 4 of a kind implies of 3 of a kind, etc. No need to check and perform all of those linear scans.
+
+        // Three of a Kind - Applies if three of the same valued dice exist in the hand.
+        // Score == sum of all dice in the hand
+        if (playerScoreCard.getThreeOfAKind() == 0 && countList.contains(COUNT_THREE_OF_A_KIND)) {
+            scoreCard.setThreeOfAKind(diceSum);
+            Log.v(TAG, "Three Of A Kind: " + scoreCard.getThreeOfAKind());
+        }
+
+        // Full House - Applies if the hand consists of a three of a kind and a pair.
+        if (playerScoreCard.getFullHouse() == 0 && countList.contains(COUNT_THREE_OF_A_KIND) && countList.contains(COUNT_PAIR)) {
+            scoreCard.setFullHouse(ScoreCard.VALUE_FULL_HOUSE);
+            Log.v(TAG, "Full House: " + scoreCard.getFullHouse());
+        }
+
+        // Four of a Kind - Applies if four of the same valued dice exist in the hand.
+        if (playerScoreCard.getFourOfAKind() == 0 && countList.contains(COUNT_FOUR_OF_A_KIND)) {
+            scoreCard.setFourOfAKind(diceSum);
+            Log.v(TAG, "Four Of A Kind: " + scoreCard.getFourOfAKind());
+        }
+
+        // Yahtzee - Applies if all five dice values are identical.
+        // FIXME: Must add in the capability to score multiple yahtzees!
+        if (playerScoreCard.getYahtzee() == 0 && countList.contains(COUNT_YAHTZEE)) {
+            scoreCard.setYahtzee(ScoreCard.VALUE_YAHTZEE);
+            Log.v(TAG, "Yahtzee: " + scoreCard.getYahtzee());
+        }
+
+        // Chance - The wildcard score is simply the sum of all dice in the hand.
+        if (playerScoreCard.getChance() == 0) {
+            scoreCard.setChance(diceSum);
+            Log.v(TAG, "Chance: " + scoreCard.getChance());
+        }
+        Log.v(TAG, "---");
+
+        return scoreCard;
     }
 
     public void getTopHalfScore() {

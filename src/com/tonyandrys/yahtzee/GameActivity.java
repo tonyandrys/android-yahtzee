@@ -28,6 +28,9 @@ public class GameActivity extends Activity {
         soundManager = new SoundManager(this);
         diceViews = new ArrayList<ImageView>();
 
+        // Initialize ScoreManager to set score to zero
+        scoreManager = new ScoreManager();
+
         // Apply dieTouchListener to Dice ImageViews and add to master list
         int[] resIds = {R.id.die_1_imageview, R.id.die_2_imageview, R.id.die_3_imageview, R.id.die_4_imageview, R.id.die_5_imageview};
         for (int i=0; i<=4; i++) {
@@ -62,6 +65,9 @@ public class GameActivity extends Activity {
 
         // Get each die face and apply them to the views on screen
         updateDiceFaces();
+
+        // Calculate score of this hand
+        scoreManager.calculateHand(board.getDiceValues());
 
     }
 

@@ -58,6 +58,18 @@ public class Board {
     }
 
     /**
+     * Compiles the integer values of the current hand and returns as an integer array.
+     * @return int[] of dice values
+     */
+    public int[] getDiceValues() {
+        int[] diceVals = {0, 0, 0, 0, 0};
+        for (int i=0; i<dice.length; i++) {
+            diceVals[i] = dice[i].getValue();
+        }
+        return diceVals;
+    }
+
+    /**
      * Returns the Drawable for the die at index dieIndex
      * @param dieIndex Index of die from 0 to 4
      * @return Face drawable
