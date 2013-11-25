@@ -1,6 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Yahtzee!</string>
-    <string name="scorepad">Scorepad</string>
     <string name="roll">Roll</string>
+
+    <!-- Scorepad Resources -->
+    <string name="scorepad">Scorepad</string>
+
+        <!-- Headers -->
+        <string name="upper_section">Upper Section</string>
+        <string name="lower_section">Lower Section</string>
+        <string name="how_to_score">How To Score</string>
+        <string name="game">Game</string>
+        <string name="game_one">#1</string>
+        <string name="game_two">#2</string>
+        <string name="game_three">#3</string>
+
+        <!-- Score Combination Labels -->
+        <string name="ones">Ones</string>
+        <string name="twos">Twos</string>
+        <string name="threes">Threes</string>
+        <string name="fours">Fours</string>
+        <string name="fives">Fives</string>
+        <string name="sixes">Sixes</string>
+        <string name="upper_bonus">Bonus (+35)</string>
+        <string name="three_of_a_kind">3/Kind</string>
+        <string name="four_of_a_kind">4/Kind</string>
+        <string name="full_house">Full House</string>
+        <string name="sm_straight">Sm Straight</string>
+        <string name="lg_straight">Lg Straight</string>
+        <string name="chance">Chance</string>
+        <string name="yahtzee">Yahtzee!</string>
+        <string name="yahtzee_bonus">Bonus\nYahtzee</string>
+
+        <!-- Score Values -->
+        <string name="unused_score">0</string>
+        <string name="zeroed_score">∅</string>
+
+        <!-- How To Score -->
+        <string name="ones_how_to_score">Count Only Ones</string>
+        <string name="twos_how_to_score">Count Only Twos</string>
+        <string name="threes_how_to_score">Count Only Threes</string>
+        <string name="fours_how_to_score">Count Only Fours</string>
+        <string name="fives_how_to_score">Count Only Fives</string>
+        <string name="sixes_how_to_score">Count Only Sixes</string>
+        <string name="upper_bonus_how_to_score">If Upper Total ≥ 63</string>
+        <string name="three_of_a_kind_how_to_score">Add Total of All Dice</string>
+        <string name="four_of_a_kind_how_to_score">Add Total of All Dice</string>
+        <string name="full_house_how_to_score">SCORE 25</string>
+        <string name="small_straight_how_to_score">SCORE 30</string>
+        <string name="large_straight_how_to_score">SCORE 40</string>
+        <string name="yahtzee_how_to_score">SCORE 50</string>
+        <string name="bonus_yahtzee_how_to_score">SCORE 100\nFOR EACH</string>
+        <string name="chance_how_to_score">Add Sum of All Dice</string>
+
+        <!-- Score Totals -->
+        <string name="upper_subtotal">Subtotal</string>
+        <string name="upper_total">Upper Total</string>
+        <string name="lower_total">Lower Total</string>
+        <string name="total_score">Total Score</string>
+        <string name="grand_total">Grand Total</string>
 </resources>

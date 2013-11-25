@@ -6,9 +6,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 public class GameActivity extends Activity {
 
@@ -70,7 +70,32 @@ public class GameActivity extends Activity {
         ScoreCard scoreCard = scoreManager.calculateHand(board.getDiceValues());
 
         // Apply calculated scores to the Scorepad UI
+        updateScorepad(scoreCard);
 
+    }
+
+    /**
+     * Updates the on-screen Scorepad using the information from a ScoreCard object.
+     * @param scoreCard ScoreCard object used to update Scorepad
+     */
+    public void updateScorepad(ScoreCard scoreCard) {
+        // Convert ScoreCard to a map and extract keys
+        HashMap<Integer, Integer> map = scoreCard.toMap();
+        Set<Integer> keys = map.keySet();
+
+        // Get the textview resources that must be updated out of the keyset and apply its enclosed value.
+        Iterator<Integer> iterator = keys.iterator();
+        while (iterator.hasNext()) {
+            // Get next resource ID in set
+            int resId = iterator.next();
+
+            // Get the associated value
+            int value = map.get(resId);
+
+            // Apply value to the resource ID
+            TextView tv = (TextView)findViewById(resId);
+            tv.setText(Integer.toString(value));
+        }
     }
 
     /**

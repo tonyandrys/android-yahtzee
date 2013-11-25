@@ -1,5 +1,7 @@
 package com.tonyandrys.yahtzee;
 
+import java.util.HashMap;
+
 /**
  * com.tonyandrys.yahtzee -
  *
@@ -69,6 +71,27 @@ public class ScoreCard {
         this.yahtzee = 0;
         this.chance = 0;
         this.yahtzeeBonusCount = 0;
+    }
+
+    /**
+     * Converts this ScoreCard into an Textview Resource ID -> Value mapping, which maps a numerical value to its TextView for displaying on the UI.
+     * @return HashMap<Integer, Integer>
+     */
+    public HashMap<Integer, Integer> toMap() {
+        HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+
+        /* Resource IDs of TextViews which hold score values.
+        * Ones, Twos, Threes, Fours, Fives, Sixes, Upper Subtotal, Upper Bonus, Upper Total, 3/Kind, 4/Kind, Full House, Sm Straight, Lg Straight, Yahtzee, Bonus Yahtzee, Chance, Lower Total, Grand (Upper + Lower) Total */
+        int[] resIds = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.upper_subtotal_value_textview, R.id.upper_bonus_value_textview, R.id.upper_total_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.bonus_yahtzee_value_textview, R.id.chance_value_textview, R.id.lower_total_value_textview, R.id.grand_total_value_textview};
+        // FIXME: Add Upper Bonus calculation! Right now it is always zero!
+        int[] scoreValues = {this.ones, this.twos, this.threes, this.fours, this.fives, this.sixes, this.topHalfTotal, 0, this.topHalfTotal, this.threeOfAKind, this.fourOfAKind, this.fullHouse, this.smStraight, this.lgStraight, this.yahtzee, (this.yahtzee * this.yahtzeeBonusCount), this.chance, this.bottomHalfTotal, (this.topHalfTotal + this.bottomHalfTotal) };
+
+        // Compile both sets into a ResID -> Value HashMap
+        for (int i=0; i<resIds.length; i++) {
+            map.put(resIds[i], scoreValues[i]);
+        }
+
+        return map;
     }
 
     public int getOnes() {
