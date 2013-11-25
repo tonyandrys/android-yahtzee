@@ -67,7 +67,9 @@ public class GameActivity extends Activity {
         updateDiceFaces();
 
         // Calculate score of this hand
-        scoreManager.calculateHand(board.getDiceValues());
+        ScoreCard scoreCard = scoreManager.calculateHand(board.getDiceValues());
+
+        // Apply calculated scores to the Scorepad UI
 
     }
 

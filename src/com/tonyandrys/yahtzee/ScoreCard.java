@@ -16,6 +16,9 @@ public class ScoreCard {
     * end of the round with a hand that assigned it no points. It is therefore unavailable to be used again. */
     final public static int ZEROED_VALUE = -1;
 
+    /* If the sum of all top half values >= BONUS_THRESHOLD, add VALUE_TOP_HALF_BONUS to the player's score. */
+    final public static int BONUS_THRESHOLD = 63;
+
     // Scores that remain constant regardless of the value on the dice
     final static public int VALUE_FULL_HOUSE = 25;
     final static public int VALUE_TOP_HALF_BONUS = 35;
@@ -36,7 +39,7 @@ public class ScoreCard {
     private int fours;
     private int fives;
     private int sixes;
-    boolean applyBonus;
+    private boolean applyBonus;
 
     // Bottom half values
     private int threeOfAKind;
@@ -46,7 +49,7 @@ public class ScoreCard {
     private int lgStraight;
     private int yahtzee;
     private int chance;
-    private int yahtzeeBonus;
+    private int yahtzeeBonusCount;
 
     public ScoreCard() {
         this.topHalfTotal = 0;
@@ -65,7 +68,7 @@ public class ScoreCard {
         this.lgStraight = 0;
         this.yahtzee = 0;
         this.chance = 0;
-        this.yahtzeeBonus = 0;
+        this.yahtzeeBonusCount = 0;
     }
 
     public int getOnes() {
@@ -181,11 +184,11 @@ public class ScoreCard {
     }
 
     public int getYahtzeeBonus() {
-        return yahtzeeBonus;
+        return yahtzeeBonusCount * VALUE_YAHTZEE_BONUS;
     }
 
     public void incrementYahtzeeBonus() {
-        this.yahtzeeBonus += VALUE_YAHTZEE_BONUS;
+        this.yahtzeeBonusCount++;
     }
 
     public int getTopHalfTotal() {

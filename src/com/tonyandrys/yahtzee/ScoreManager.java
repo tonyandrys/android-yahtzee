@@ -65,7 +65,7 @@ public class ScoreManager {
         scoreCard = tabulateBottomHalf(countList, scoreCard);
 
         // Return the calculated ScoreCard
-        return new ScoreCard();
+        return scoreCard;
     }
 
     /**
@@ -248,12 +248,52 @@ public class ScoreManager {
         return scoreCard;
     }
 
-    public void getTopHalfScore() {
-
+    public ScoreCard getPlayerScoreCard() {
+        return this.playerScoreCard;
     }
 
-    public void getTotalScore() {
+    public void setPlayerScoreCard(ScoreCard scoreCard) {
+        this.playerScoreCard = scoreCard;
+    }
 
+    /**
+     * Returns the total of the top half score combinations from the passed scoreCard. Bonus is included if applicable.
+     * The top half of the score card includes Ones, Twos, Threes, Fours, Fives, Sixes, and a bonus addition of 35 if the sum
+     * of all preceding combinations is >= 63.
+     * @param scoreCard ScoreCard Object to calculate against
+     * @return upper half total as an integer
+     */
+    public int calculateTopHalfTotal(ScoreCard scoreCard) {
+        int s = 0;
+        s += scoreCard.getOnes();
+        s += scoreCard.getTwos();
+        s += scoreCard.getThrees();
+        s += scoreCard.getFours();
+        s += scoreCard.getFives();
+        s += scoreCard.getSixes();
+        if (scoreCard.isBonusApplied()) {
+            s += ScoreCard.VALUE_TOP_HALF_BONUS;
+        }
+        return s;
+    }
+
+    /**
+     * Returns the total of the bottom half score combinations from the passed scoreCard.
+     * The bottom half of the score card includes Three Of A Kind, Four Of A Kind, Small Straight, Large Straight, Full House,
+     * Yahtzee, Bonus Yahtzee, and Chance combinations.
+     * @param scoreCard ScoreCard Object to calculate against
+     */
+    public int calculateBottomHalfTotal(ScoreCard scoreCard) {
+        int s = 0;
+        s += scoreCard.getThreeOfAKind();
+        s += scoreCard.getFourOfAKind();
+        s += scoreCard.getSmStraight();
+        s += scoreCard.getLgStraight();
+        s += scoreCard.getFullHouse();
+        s += scoreCard.getYahtzee();
+        s += scoreCard.getChance();
+        s += scoreCard.getYahtzeeBonus();
+        return s;
     }
 
 }
