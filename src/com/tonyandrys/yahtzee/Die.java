@@ -19,23 +19,25 @@ public class Die {
     int value;
     Drawable face;
     boolean held;
-    Random r;
 
     public Die(Context context) {
         this.context = context;
-        Random r = new Random();
+        this.face = null;
+        this.held = false;
+        this.value = 0;
     }
 
     /**
      * "Rolls" this die by generating a new random value [1,6] for this dice and updating the reference to its face.
+     * @param r Random number generator used to generate this integer.
      */
-    public void roll() {
+    public void roll(Random r) {
 
         // Ensure this die is NOT being held before rolling.
         if (!this.held) {
 
             // Generate a random number from [1-7).
-            this.value = (r.nextInt(1-7));
+            this.value = (r.nextInt(6)) + 1;
 
             // Get the new face for this die and store it.
             this.face = getFace();
@@ -73,11 +75,19 @@ public class Die {
     }
 
     /**
-     * Sets the held parameter for this die.
+     * Sets the held status for this die.
      * @param holdDie True to hold the die, set false to remove a hold.
      */
     public void setHeld(boolean holdDie) {
         this.held = holdDie;
+    }
+
+    /**
+     * Returns the held status of this die.
+     * @return true if die is held, false if it is released
+     */
+    public boolean isDieHeld() {
+        return this.held;
     }
 
 }

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import java.util.Random;
+
 /**
  * com.tonyandrys.yahtzee -
  *
@@ -15,18 +17,21 @@ public class Board {
 
     public final String TAG = this.getClass().getName();
 
-    int playerScore;
     boolean isPlaying; // Main loop condition. False to end game.
+    int turnCount;
+    int playerScore;
     int handScore;
     Context context;
+    Random r;
 
     // Dice are stored in a basic array from [0-4].
     private Die[] dice;
 
-    public Board(Context context) {
+    public Board(Context context, Random r) {
 
         this.context = context;
-        Log.v(TAG, "Board initialized! New game is starting now.");
+        this.r = r;
+        Log.v(TAG, "Constructing game...");
 
         // Set new game parameters
         isPlaying = true;
@@ -35,6 +40,7 @@ public class Board {
 
         // Construct five dice objects
         this.dice = new Die[] {new Die(context), new Die(context), new Die(context), new Die(context), new Die(context)};
+        Log.v(TAG, "Board constructed! Starting first hand now.");
 
         // Roll all 5 dice to generate the first hand.
         rollDice();
@@ -46,13 +52,14 @@ public class Board {
      */
     public void rollDice() {
         for (int i=0; i<=4; i++) {
-            dice[i].roll();
+            dice[i].roll(r);
         }
+        turnCount--;
     }
 
     /**
      * Returns the Drawable for the die at index dieIndex
-     * @param dieIndex Die index from 0 to 4
+     * @param dieIndex Index of die from 0 to 4
      * @return Face drawable
      */
     public Drawable getDieFace(int dieIndex) {
@@ -62,15 +69,24 @@ public class Board {
 
     /**
      * Sets the hold status of a die on the board.
-     * @param dieIndex Index of die to roll from 0-4.
+     * @param dieIndex Index of die to roll from 0 to 4.
      * @param holdDie True to hold this die, false to release it.
      */
     public void holdDie(int dieIndex, boolean holdDie) {
         dice[dieIndex].setHeld(holdDie);
         if (holdDie) {
-            Log.v(TAG, "Dice " + dieIndex + " is now held.");
+            Log.v(TAG, "Dice " + dieIndex + ": HELD");
         } else {
-            Log.v(TAG, "Dice " + dieIndex + " is NOT being held.");
+            Log.v(TAG, "Dice " + dieIndex + ": NOT HELD");
         }
+    }
+
+    /**
+     * Checks if a die is held based on its dieIndex.
+     * @param dieIndex Index of die to check from 0 to 4.
+     * @return Boolean - returns true if die is held, false if it is released.
+     */
+    public boolean isDieHeld(int dieIndex) {
+        return dice[dieIndex].isDieHeld();
     }
 }
