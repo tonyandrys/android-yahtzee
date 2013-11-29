@@ -22,7 +22,7 @@
         <string name="fours">Fours</string>
         <string name="fives">Fives</string>
         <string name="sixes">Sixes</string>
-        <string name="upper_bonus">Bonus (+35)</string>
+        <string name="upper_bonus">Bonus</string>
         <string name="three_of_a_kind">3/Kind</string>
         <string name="four_of_a_kind">4/Kind</string>
         <string name="full_house">Full House</string>
@@ -30,7 +30,7 @@
         <string name="lg_straight">Lg Straight</string>
         <string name="chance">Chance</string>
         <string name="yahtzee">Yahtzee!</string>
-        <string name="yahtzee_bonus">Bonus\nYahtzee</string>
+        <string name="yahtzee_bonus">Bonus Yahtzee</string>
 
         <!-- Score Values -->
         <string name="unused_score">0</string>
@@ -55,7 +55,7 @@
 
         <!-- Score Totals -->
         <string name="upper_subtotal">Subtotal</string>
-        <string name="upper_total">Upper Total</string>
+        <string name="upper_total">Upper\nTotal</string>
         <string name="lower_total">Lower Total</string>
         <string name="total_score">Total Score</string>
         <string name="grand_total">Grand Total</string>
