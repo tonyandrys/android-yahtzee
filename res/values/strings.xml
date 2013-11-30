@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+<<<<<<< HEAD
     <string name="app_name">AnDice</string>
+=======
+    <string name="app_name">Yahtzee!</string>
+>>>>>>> 8ef70c81206f4aef5f49939c213a7dbd230639b1
     <string name="roll">Roll</string>
 
     <!-- Scorepad Resources -->
