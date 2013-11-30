@@ -31,7 +31,7 @@ public class ScoreManager {
     final static public int TREE_COUNT_SMALL_STRAIGHT = 4;
     final static public int TREE_SMALL_STRAIGHT_DIFFERENCE = 3;
 
-    ScoreCard playerScoreCard;
+    private ScoreCard playerScoreCard;
 
     /**
      * On construction, generate a blank ScoreCard for the player.
@@ -47,8 +47,8 @@ public class ScoreManager {
      */
     public ScoreCard calculateHand(int[] diceValues) {
 
-        // Construct a new blank ScoreCard.
-        ScoreCard scoreCard = new ScoreCard();
+        // Get a copy of the current ScoreCard
+        ScoreCard scoreCard = playerScoreCard;
 
         // Enumerate the dice in the hand and sort them by their values
         ArrayList<Integer> countList = new ArrayList<Integer>();
@@ -91,7 +91,7 @@ public class ScoreManager {
 
         // Once all the dice counts are updated, write the cardinality list and return.
         Log.v(TAG, "Hand Processed." );
-        Log.v(TAG, "Dice counts - Ones: " + diceCount[0] + " Twos: " + diceCount[1] + " Threes: " + diceCount[2] + " Fours: " + diceCount[3] + " Fives: " + diceCount[4] + "S ixes: " + diceCount[5]);
+        Log.v(TAG, "Dice counts - Ones: " + diceCount[0] + " Twos: " + diceCount[1] + " Threes: " + diceCount[2] + " Fours: " + diceCount[3] + " Fives: " + diceCount[4] + "Sixes: " + diceCount[5]);
 
         // Convert to ArrayList to ease checking set membership when tabulating score.
         ArrayList<Integer> countList = new ArrayList<Integer>();
@@ -175,17 +175,15 @@ public class ScoreManager {
         which yield 5 unique values are in sequential order. */
         if (playerScoreCard.getLgStraight() == 0 && enumTree.size() == TREE_COUNT_LARGE_STRAIGHT) {
             scoreCard.setScore(ScoreCard.SCORE_FIELD_LG_STRAIGHT, ScoreCard.VALUE_LG_STRAIGHT);
-            Log.v(TAG, "---");
             Log.v(TAG, "LgStraight: " + scoreCard.getLgStraight());
 
         }
 
         /* A Small Straight is represented in the TreeSet if it contains four integers AND the difference between the
          * largest and smallest integers is 3. */
-        if ((playerScoreCard.getSmStraight() == 0) && (enumTree.last() - enumTree.first() == TREE_SMALL_STRAIGHT_DIFFERENCE)) {
+        if ((playerScoreCard.getSmStraight() == 0) && (enumTree.size() == TREE_COUNT_SMALL_STRAIGHT) && (enumTree.last() - enumTree.first() == TREE_SMALL_STRAIGHT_DIFFERENCE)) {
             scoreCard.setScore(ScoreCard.SCORE_FIELD_SM_STRAIGHT, ScoreCard.VALUE_SM_STRAIGHT);
             Log.v(TAG, "SmStraight: " + scoreCard.getSmStraight());
-            Log.v(TAG, "---");
         }
 
         return scoreCard;
@@ -242,9 +240,12 @@ public class ScoreManager {
             scoreCard.setScore(ScoreCard.SCORE_FIELD_CHANCE, diceSum);
             Log.v(TAG, "Chance: " + scoreCard.getChance());
         }
-        Log.v(TAG, "---");
 
         return scoreCard;
+    }
+
+    public int getTotalScore() {
+        return playerScoreCard.getTotal();
     }
 
     public void writeScore(int SCORE_FIELD, int value) {

@@ -2,7 +2,7 @@
 
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
-             android:layout_height="match_parent">
+             android:layout_height="match_parent" android:background="#FFFFFF">
 
     <TableRow
             android:layout_width="fill_parent"
@@ -11,22 +11,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ones"
-                android:id="@+id/textView" android:layout_column="0" android:textSize="30sp"/>
+                android:id="@+id/textView" android:layout_column="0" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/unused_score"
                 android:id="@+id/ones_value_textview" android:layout_column="1" android:textSize="30sp"
-                android:layout_marginLeft="10dp" android:layout_marginRight="10dp" android:tag="0"/>
+                android:layout_marginLeft="10dp" android:layout_marginRight="10dp" android:tag="0"
+                android:clickable="true" android:focusable="true" android:enabled="true"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/three_of_a_kind"
-                android:id="@+id/textView7" android:layout_column="2" android:textSize="30sp"/>
+                android:id="@+id/textView7" android:layout_column="2" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView
                 android:id="@+id/three_of_a_kind_value_textview" android:layout_column="3" android:textSize="30sp"
                 android:text="@string/unused_score"
-                android:layout_marginLeft="10dp" android:layout_marginRight="10dp" android:tag="7"/>
+                android:layout_marginLeft="10dp" android:layout_marginRight="10dp" android:tag="7"
+                android:clickable="true" android:focusable="true"/>
     </TableRow>
     <TableRow
             android:layout_width="fill_parent"
@@ -35,20 +39,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/twos"
-                android:id="@+id/textView1" android:layout_column="0" android:textSize="30sp"/>
+                android:id="@+id/textView1" android:layout_column="0" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/unused_score" android:id="@+id/twos_value_textview" android:layout_column="1"
                   android:textSize="30sp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
-                  android:tag="1"/>
+                  android:tag="1" android:clickable="true" android:focusable="true"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/four_of_a_kind"
-                android:id="@+id/textView8" android:layout_column="2" android:textSize="30sp"/>
+                android:id="@+id/textView8" android:layout_column="2" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/unused_score" android:id="@+id/four_of_a_kind_value_textview" android:layout_column="3"
                   android:textSize="30sp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
-                  android:tag="8"/>
+                  android:tag="8" android:clickable="true" android:focusable="true"/>
     </TableRow>
     <TableRow
             android:layout_width="fill_parent"
@@ -57,20 +63,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/threes"
-                android:id="@+id/textView2" android:layout_column="0" android:textSize="30sp"/>
+                android:id="@+id/textView2" android:layout_column="0" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/unused_score" android:id="@+id/threes_value_textview" android:layout_column="1"
                   android:textSize="30sp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
-                  android:tag="2"/>
+                  android:tag="2" android:clickable="true" android:focusable="true"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/full_house"
-                android:id="@+id/textView9" android:layout_column="2" android:textSize="30sp"/>
+                android:id="@+id/textView9" android:layout_column="2" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/unused_score" android:id="@+id/full_house_value_textview" android:layout_column="3"
                   android:textSize="30sp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
-                  android:tag="9"/>
+                  android:tag="9" android:clickable="true" android:focusable="true"/>
     </TableRow>
     <TableRow
             android:layout_width="fill_parent"
@@ -79,20 +87,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/fours"
-                android:id="@+id/textView3" android:layout_column="0" android:textSize="30sp"/>
+                android:id="@+id/textView3" android:layout_column="0" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/unused_score" android:id="@+id/fours_value_textview" android:layout_column="1"
                   android:textSize="30sp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
-                  android:tag="3"/>
+                  android:tag="3" android:clickable="true" android:focusable="true"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/sm_straight"
-                android:id="@+id/textView10" android:layout_column="2" android:textSize="30sp"/>
+                android:id="@+id/textView10" android:layout_column="2" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/unused_score" android:id="@+id/sm_straight_value_textview" android:layout_column="3"
                   android:textSize="30sp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
-                  android:tag="10"/>
+                  android:tag="10" android:clickable="true" android:focusable="true"/>
     </TableRow>
     <TableRow
             android:layout_width="fill_parent"
@@ -101,20 +111,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/fives"
-                android:id="@+id/textView4" android:layout_column="0" android:textSize="30sp"/>
+                android:id="@+id/textView4" android:layout_column="0" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/unused_score" android:id="@+id/fives_value_textview" android:layout_column="1"
                   android:textSize="30sp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
-                  android:tag="4"/>
+                  android:tag="4" android:clickable="true" android:focusable="true"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/lg_straight"
-                android:id="@+id/textView11" android:layout_column="2" android:textSize="30sp"/>
+                android:id="@+id/textView11" android:layout_column="2" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/unused_score" android:id="@+id/lg_straight_value_textview" android:layout_column="3"
                   android:textSize="30sp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
-                  android:tag="11"/>
+                  android:tag="11" android:clickable="true" android:focusable="true"/>
     </TableRow>
     <TableRow
             android:layout_width="fill_parent"
@@ -123,20 +135,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/sixes"
-                android:id="@+id/textView5" android:layout_column="0" android:textSize="30sp"/>
+                android:id="@+id/textView5" android:layout_column="0" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/unused_score" android:id="@+id/sixes_value_textview" android:layout_column="1"
                   android:textSize="30sp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
-                  android:tag="5"/>
+                  android:tag="5" android:clickable="true" android:focusable="true"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/yahtzee"
-                android:id="@+id/textView12" android:layout_column="2" android:textSize="30sp"/>
+                android:id="@+id/textView12" android:layout_column="2" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/unused_score" android:id="@+id/yahtzee_value_textview" android:layout_column="3"
                   android:textSize="30sp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
-                  android:tag="12"/>
+                  android:tag="12" android:clickable="true" android:focusable="true"/>
     </TableRow>
     <TableRow
             android:layout_width="fill_parent"
@@ -145,23 +159,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/upper_bonus"
-                android:id="@+id/textView6" android:layout_column="0" android:textSize="30sp"/>
+                android:id="@+id/textView6" android:layout_column="0" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                  android:text="@string/unused_score" android:id="@+id/upper_total_value_textview" android:layout_column="1"
+                  android:text="@string/unused_score" android:id="@+id/upper_bonus_value_textview" android:layout_column="1"
                   android:textSize="30sp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
-                  android:tag="6"/>
+                  android:tag="6" android:clickable="true" android:focusable="true"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="B/Yahtzee"
-                android:id="@+id/textView14" android:layout_column="2" android:textSize="30sp"
-                />
+                android:id="@+id/textView16" android:layout_column="2" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/unused_score"
-                android:id="@+id/textView15" android:layout_column="3" android:textSize="30sp"
-                android:gravity="center_horizontal" android:tag="13"/>
+                android:id="@+id/bonus_yahtzee_value_textview" android:layout_column="3" android:textSize="30sp"
+                android:gravity="center_horizontal" android:tag="13" android:clickable="true" android:focusable="true"/>
     </TableRow>
     <TableRow
             android:layout_width="fill_parent"
@@ -170,11 +185,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/chance"
-                android:id="@+id/textView13" android:layout_column="2" android:textSize="30sp"/>
+                android:id="@+id/textView13" android:layout_column="2" android:textSize="30sp"
+                android:textColor="#000000"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:text="@string/unused_score" android:id="@+id/chance_value_textview" android:layout_column="3"
                   android:textSize="30sp" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
-                  android:tag="14"/>
+                  android:tag="14" android:clickable="true" android:focusable="true"/>
     </TableRow>
     <TableRow
             android:layout_width="fill_parent"
@@ -184,12 +200,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Total"
-                android:id="@+id/textView21" android:layout_column="0" android:textSize="30sp" android:layout_span="1"/>
+                android:id="@+id/textview999" android:layout_column="0" android:textSize="30sp" android:layout_span="1"
+                android:textColor="#000000"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/unused_score"
-                android:id="@+id/textView22" android:layout_column="1" android:layout_span="1" android:textSize="30sp"
+                android:id="@+id/grand_total_value_textview" android:layout_column="1" android:layout_span="1" android:textSize="30sp"
                 android:gravity="center" android:tag="15"/>
     </TableRow>
 </TableLayout>

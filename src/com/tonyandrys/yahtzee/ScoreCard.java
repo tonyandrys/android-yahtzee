@@ -93,6 +93,8 @@ public class ScoreCard {
     /**
      * Compiles the values in this ScoreCard and builds a TextViewResID -> Score Value map to be used in updating the Game UI.
      */
+
+    // FIXME: Should TextView Resource IDs be here? This probably should be decoupled from this class and given to GameActivity..
     public HashMap<Integer, Integer> getScoreMap() {
         HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
 
