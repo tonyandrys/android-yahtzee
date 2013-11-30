@@ -58,9 +58,7 @@ public class GameActivity extends Activity {
         rollDiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (turnCount > 0) {
-                    nextTurn();
-                }
+                nextTurn();
             }
         });
 
@@ -94,8 +92,10 @@ public class GameActivity extends Activity {
         turnCount--;
 
         // If we're out of turns, disable the roll button to force the player to score.
-        Button rollButton = (Button)findViewById(R.id.roll_dice_button);
-        rollButton.setEnabled(false);
+        if (turnCount == 0) {
+            Button rollButton = (Button)findViewById(R.id.roll_dice_button);
+            rollButton.setEnabled(false);
+        }
     }
 
     /**
@@ -105,9 +105,18 @@ public class GameActivity extends Activity {
     public void newRound() {
         clearTemporaryScores();
         //scoreManager.getTotalScore(); FIXME: Must work on total score... very broken atm.
+
+        // Reset hold status on all dice
+        for (int i=0; i<5; i++) {
+            board.holdDie(i, false);
+            toggleDiceLock(i, false);
+        }
+        
         turnCount = 3;
         Button rollButton = (Button)findViewById(R.id.roll_dice_button);
         rollButton.setEnabled(true);
+
+
     }
 
     /**
@@ -147,7 +156,7 @@ public class GameActivity extends Activity {
         // Hide the visibility of every TextView whos ID exists in availableScoreIDs, since those values are still available for the player to pick.
         for (int i=0; i<availableScoreIDs.size(); i++) {
             TextView tv = (TextView)findViewById(availableScoreIDs.get(i));
-            tv.setVisibility(View.GONE);
+            tv.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -231,7 +240,8 @@ public class GameActivity extends Activity {
 
                 // Disable this score field from being used again during this game.
                 tv.setTextColor(R.color.used_scorepad_field); // Set color
-                availableScoreIDs.remove(tv.getId()); // Remove TextView ID
+                int removeIndex = availableScoreIDs.indexOf(tv.getId());
+                availableScoreIDs.remove(removeIndex); // Remove TextView ID
 
                 // A Round is finished when a score is recorded, so start the next round.
                 newRound();

@@ -83,7 +83,7 @@
             android:layout_below="@+id/dice_container_tablelayout" android:background="@drawable/gray_rounded_button"
             android:layout_marginTop="15dp" android:textColor="#000000" android:textSize="22sp"
             android:paddingRight="40dp" android:paddingLeft="40dp"/>
-    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="wrap_content"
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
                  android:layout_height="wrap_content" android:background="#FFFFFF" android:id="@+id/scorepad_container_tablelayout"
                  android:layout_alignParentBottom="true">
         <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent">
