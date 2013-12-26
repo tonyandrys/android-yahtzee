@@ -2,14 +2,14 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent" android:background="@drawable/teal_felt"
+                android:layout_height="fill_parent" android:background="@drawable/green_background"
                 android:id="@+id/game_container_framelayout">
 
     <TableLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" android:layout_centerHorizontal="true"
-            android:layout_alignParentTop="true" android:id="@+id/dice_container_tablelayout"
-            android:stretchColumns="*">
+            android:layout_alignParentTop="false" android:id="@+id/dice_container_tablelayout"
+            android:stretchColumns="*" android:layout_below="@+id/scorepad_container_tablelayout">
         <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent" android:layout_marginTop="10dp">
@@ -85,7 +85,7 @@
             android:paddingRight="40dp" android:paddingLeft="40dp"/>
     <TableLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
                  android:layout_height="wrap_content" android:background="#FFFFFF" android:id="@+id/scorepad_container_tablelayout"
-                 android:layout_alignParentBottom="true">
+                 android:layout_alignParentBottom="false" android:layout_alignParentTop="true">
         <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:text="@string/ones" android:id="@+id/textView" android:layout_column="0"

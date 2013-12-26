@@ -111,7 +111,7 @@ public class GameActivity extends Activity {
             board.holdDie(i, false);
             toggleDiceLock(i, false);
         }
-        
+
         turnCount = 3;
         Button rollButton = (Button)findViewById(R.id.roll_dice_button);
         rollButton.setEnabled(true);
@@ -153,10 +153,11 @@ public class GameActivity extends Activity {
      * Clears any temporary calculated values in the ScorePad.
      */
     public void clearTemporaryScores() {
-        // Hide the visibility of every TextView whos ID exists in availableScoreIDs, since those values are still available for the player to pick.
+        // Reset the values of all unused score fields
         for (int i=0; i<availableScoreIDs.size(); i++) {
             TextView tv = (TextView)findViewById(availableScoreIDs.get(i));
             tv.setVisibility(View.INVISIBLE);
+            tv.setText(getString(R.string.unused_score));
         }
     }
 

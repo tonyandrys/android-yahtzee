@@ -49,24 +49,34 @@ public class ScoreCard {
     final static public int VALUE_SM_STRAIGHT = 30;
     final static public int VALUE_LG_STRAIGHT = 40;
 
+    // Constants used to determine which array is used to build a Score Map
+    final static public int MAP_PLAYER_SCORES = 1;
+    final static public int MAP_HAND_SCORES = 2;
+
     /*
-    *  Scores are stored as an integer array, where each index represents a field on the ScorePad.
+    *  A player's scores are stored as an integer array, where each index represents a field on the ScorePad.
     *  [ones, twos, threes, fours, fives, sixes, bonus, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Bonus Yahtzee, Chance, Total]
     */
     int[] scores;
+
+    // handScores is an integer array with similar structure to 'scores' which holds the "possible" value of each field after every roll of the dice.
+    int[] handScores;
+
     String playerName;
 
     public ScoreCard() {
         // Reserve 16 indices to represent each field on the scorecard, set all scores to zero to create a blank scorecard
         scores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         // Set player name to default value
         playerName = "NO NAME";
     }
 
     public ScoreCard(String playerName) {
-        // Reserve 16 indices to represent each field on the scorecard, set all scores to zero to create a blank scorecard
+        // Reserve 16 indices to represent each field on the scorecard, set all scores to zero to create a blank scorecard.
         scores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         // Set player name to passed value
         this.playerName = playerName;
@@ -91,19 +101,35 @@ public class ScoreCard {
     }
 
     /**
-     * Compiles the values in this ScoreCard and builds a TextViewResID -> Score Value map to be used in updating the Game UI.
+     * Returns a textViewResId -> Value Of score mapping of either the player's saved scores or the scores of the current hand.
+     * @param card MAP_PLAYER_SCORES returns saved scores, MAP_HAND_SCORES returns the values of every score field based on the current hand.
+     * @return Map filled with requested parameters
+     * @throws IllegalArgumentException if card != MAP_PLAYER_SCORES or MAP_HAND_SCORES
      */
+    // FIXME: Move these to ScoreManager, ScoreCard shouldn't handle this kind of thing. ScoreCard == Model, ScoreManager == Controller!
+    public HashMap<Integer, Integer> getScoreMap(int card) {
+        if (card == MAP_HAND_SCORES || card == MAP_PLAYER_SCORES) {
+            return buildMap(card);
+        } else {
+            throw new IllegalArgumentException("Illegal Score Map Requested! Passed value: " + card);
+        }
+    }
 
-    // FIXME: Should TextView Resource IDs be here? This probably should be decoupled from this class and given to GameActivity..
-    public HashMap<Integer, Integer> getScoreMap() {
+    private HashMap<Integer, Integer> buildMap(int card) {
         HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
 
-        /* Resource IDs of TextViews which hold score values. */
+         /* Resource IDs of TextViews which hold score values. */
         int[] resIds = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.upper_bonus_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.bonus_yahtzee_value_textview, R.id.chance_value_textview, R.id.grand_total_value_textview};
 
-        // Compile both sets into a ResID -> Value HashMap
-        for (int i=0; i<resIds.length; i++) {
-            map.put(resIds[i], scores[i]);
+        // Compile either player scores or hand scores into a ResID -> Value map and return
+        if (card == MAP_PLAYER_SCORES) {
+            for (int i=0; i<resIds.length; i++) {
+                map.put(resIds[i], scores[i]);
+            }
+        } else if (card == MAP_HAND_SCORES) {
+            for (int i=0; i<resIds.length; i++) {
+                map.put(resIds[i], handScores[i]);
+            }
         }
         return map;
     }
