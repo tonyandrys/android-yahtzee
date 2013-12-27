@@ -17,7 +17,6 @@ public class GameActivity extends Activity {
     SoundManager soundManager;
     ScoreManager scoreManager;
     ArrayList<ImageView> diceViews;
-    ArrayList<Integer> availableScoreIDs;
     Board board;
     int turnCount;
 
@@ -30,7 +29,7 @@ public class GameActivity extends Activity {
         board = new Board(this, new Random());
         soundManager = new SoundManager(this);
         diceViews = new ArrayList<ImageView>();
-        availableScoreIDs = new ArrayList<Integer>();
+        //availableScoreIDs = new ArrayList<Integer>();
 
         // Initialize ScoreManager to set score to zero
         scoreManager = new ScoreManager();
@@ -49,7 +48,7 @@ public class GameActivity extends Activity {
             TextView tv = (TextView)findViewById(scoreResIDs[i]);
             tv.setOnClickListener(new scoreTouchListener());
             tv.setVisibility(View.INVISIBLE);
-            availableScoreIDs.add(scoreResIDs[i]);
+            //availableScoreIDs.add(scoreResIDs[i]);
         }
 
         // Initialize button listeners
@@ -83,10 +82,9 @@ public class GameActivity extends Activity {
         updateDiceFaces();
 
         // Build score map of this hand and apply to UI
-        ScoreCard scoreCard = scoreManager.calculateHand(board.getDiceValues());
-
-        // Apply calculated scores to the Scorepad UI
-        updateScorepadDisplay(scoreCard);
+        scoreManager.calculateHand(board.getDiceValues());
+        HashMap<Integer, Integer> map = scoreManager.getScoreDisplayMap(ScoreManager.MAP_TYPE_HAND_SCORES);
+        updateScorepadDisplay(map);
 
         // Decrement turn counter
         turnCount--;
@@ -103,16 +101,19 @@ public class GameActivity extends Activity {
      * the player's total score, and resetting the turn count back to 3.
      */
     public void newRound() {
-        clearTemporaryScores();
-        //scoreManager.getTotalScore(); FIXME: Must work on total score... very broken atm.
+        // When a new round starts, we remove the temporary scores from the display by getting player's scoreMap and updating the display again
+        updateScorepadDisplay(scoreManager.getScoreDisplayMap(ScoreManager.MAP_TYPE_PLAYER_SCORES));
 
-        // Reset hold status on all dice
+        // Clear handScores to allow temporary value calculation for next turn.
+        scoreManager.clearHandScores();
+
+        // Reset turn count and hold status on all dice
+        turnCount = 3;
         for (int i=0; i<5; i++) {
             board.holdDie(i, false);
             toggleDiceLock(i, false);
         }
 
-        turnCount = 3;
         Button rollButton = (Button)findViewById(R.id.roll_dice_button);
         rollButton.setEnabled(true);
 
@@ -121,24 +122,22 @@ public class GameActivity extends Activity {
 
     /**
      * Updates the on-screen Scorepad to the values stored in an ArrayScoreCard
-     * @param scoreCard ArrayScoreCard object used to update Scorepad
      */
-    public void updateScorepadDisplay(ScoreCard scoreCard) {
-        // Get TextViewResID -> Integer Score Map and extract keys
-        HashMap<Integer, Integer> map = scoreCard.getScoreMap();
-        Set<Integer> keys = map.keySet();
+    public void updateScorepadDisplay(HashMap<Integer, Integer> scoreMap) {
+        // k := iterator over the keys of scoreMap (resIDs)
+        Iterator k = scoreMap.keySet().iterator();
 
-        // Get the textview resources that must be updated out of the keyset and apply its enclosed value.
-        Iterator<Integer> iterator = keys.iterator();
-        while (iterator.hasNext()) {
+        // For every key in k, apply the contained value in its respective value
+        while (k.hasNext()) {
 
             // Get next resource ID in set
-            int resId = iterator.next();
+            int resId = (Integer)k.next(); //possibly unsafe cast?
 
             // Check if the field is available. If it can't be set by the user because it contains a stored value or was zeroed, there's no point in updating the value.
-            if (availableScoreIDs.contains(resId)) {
+            if (scoreMap.containsKey(resId)) {
+
                 // Get the associated value
-                int value = map.get(resId);
+                int value = scoreMap.get(resId);
 
                 // Apply appropriate value & color to the TextView
                 TextView tv = (TextView)findViewById(resId);
@@ -146,18 +145,6 @@ public class GameActivity extends Activity {
                 tv.setVisibility(View.VISIBLE);
                 tv.setText(Integer.toString(value));
             }
-        }
-    }
-
-    /**
-     * Clears any temporary calculated values in the ScorePad.
-     */
-    public void clearTemporaryScores() {
-        // Reset the values of all unused score fields
-        for (int i=0; i<availableScoreIDs.size(); i++) {
-            TextView tv = (TextView)findViewById(availableScoreIDs.get(i));
-            tv.setVisibility(View.INVISIBLE);
-            tv.setText(getString(R.string.unused_score));
         }
     }
 

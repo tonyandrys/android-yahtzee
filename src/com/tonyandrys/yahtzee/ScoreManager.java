@@ -10,9 +10,7 @@ package com.tonyandrys.yahtzee;
 
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Handles score calculation and recording into a ScoreCard object
@@ -37,6 +35,7 @@ public class ScoreManager {
     final static public int TREE_SMALL_STRAIGHT_DIFFERENCE = 3;
 
     private ScoreCard playerScoreCard;
+    private HashSet availableScoreFields;
 
     // Resource IDs used to map values to their respective views on the ScoreCard
     int[] resIds = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.upper_bonus_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.bonus_yahtzee_value_textview, R.id.chance_value_textview, R.id.grand_total_value_textview};
@@ -52,23 +51,11 @@ public class ScoreManager {
         playerScoreCard = new ScoreCard();
         // Create a blank integer array to store calculated hand values
         handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        playerScoreCard.getAvailableScoreFields
     }
 
     public int getPlayerScore() {
         return playerScoreCard.getPlayerScore();
-    }
-
-    public int getScoreMap() {
-
-    }
-
-    /**
-     * Builds a resId -> Value mapping of the hand scores for the values currently shown on the dice.
-     * @return HashMap<Integer, Integer> such that map.get(k) contains the VALUE for the TextView map.keyset[k]
-     */
-    public HashMap<Integer, Integer> getHandMap() {
-
-
     }
 
     /**
@@ -76,16 +63,20 @@ public class ScoreManager {
      * @param mapType ScoreManager.MAP_TYPE_PLAYER_SCORES for a map containing all fields of the player's ScoreCard, ScoreManager.MAP_TYPE_HAND_SCORES for the values of the current hand.
      * @throws IllegalArgumentException if mapType != ScoreManager.MAP_TYPE_HAND_SCORES or ScoreManager.MAP_TYPE_PLAYER_SCORES
      *
-     * @return
+     * @return ScoreMap of type requested by `mapType`
      */
-    private HashMap<Integer, Integer> getScoreDisplayMap(int mapType) {
+    public HashMap<Integer, Integer> getScoreDisplayMap(int mapType) {
         HashMap<Integer, Integer> map;
 
         if (mapType == MAP_TYPE_PLAYER_SCORES) {
             int[] scores = playerScoreCard.getScoreArray();
             map = buildDisplayMap(scores);
+            Log.v(TAG, "Score Map Built:");
+            Log.v(TAG, map.toString());
         } else if (mapType == MAP_TYPE_HAND_SCORES) {
             map = buildDisplayMap(handScores);
+            Log.v(TAG, "Hand Map Built:");
+            Log.v(TAG, map.toString());
         } else {
             throw new IllegalArgumentException("Invalid Map Type passed to buildDisplayMap()!");
         }
@@ -111,12 +102,8 @@ public class ScoreManager {
     /**
      * Given a set of dice values, this method enumerates the dice and determines the possible scores for every category.
      * @param diceValues integer values of dice
-     * @return ScoreCard object with every score line item set to the value it is worth with this hand.
      */
     public void calculateHand(int[] diceValues) {
-
-        // Get a copy of the current ScoreCard
-        ScoreCard scoreCard = playerScoreCard;
 
         // Enumerate the dice in the hand and sort them by their values
         ArrayList<Integer> countList = enumerateHand(diceValues);
@@ -167,7 +154,6 @@ public class ScoreManager {
     /**
      * Tabulates the top half scores based on the passed list of dice counts and the player's current scores.
      * @param countList Integer list representing dice counts.
-     * @return Returns the passed ScoreCard object with the top half scores written to it.
      */
     private void tabulateTopHalf(ArrayList<Integer> countList) {
 
@@ -247,7 +233,6 @@ public class ScoreManager {
     /**
      * Tabulates the bottom half scores based on passed array of dice counts and the player's current scores.
      * @param countList List of dice counts.
-     * @Return Returns the passed ScoreCard object with the top half scores written to it.
      */
     private void tabulateBottomHalf(ArrayList<Integer> countList) {
 
@@ -293,6 +278,28 @@ public class ScoreManager {
             handScores[ScoreCard.SCORE_FIELD_CHANCE] = diceSum;
             Log.v(TAG, "Chance: " + handScores[ScoreCard.SCORE_FIELD_CHANCE]);
         }
+    }
+
+    /**
+     * Returns the TextView ResIDs that have not been used or "zeroed" as a Set.
+     * HashSet is used for efficiency when checking for membership. HashSet.contains() runs in constant time.
+     * @return HashSet<Integer> of all available ResIDs.
+     */
+    public HashSet<Integer> getAvailableScoreFields() {
+        // Get the array of scores from ScoreCard
+        int[] s = playerScoreCard.getScoreArray();
+
+        // Grab all values that are available from s and map them to their ResIDs.
+        HashSet<Integer> returnSet = new HashSet<Integer>();
+        for (int i=0; i<s.length; i++) {
+            // check if this field is available
+            if (s[i] == ScoreCard.AVAILABLE_SCORE) {
+                returnSet.add(resIds[i]); // add ResID
+                Log.v(TAG, "Score Field " + i + " is available");
+            }
+        }
+        
+        return returnSet;
     }
 
     /**
