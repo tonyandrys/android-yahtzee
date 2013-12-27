@@ -1,7 +1,5 @@
 package com.tonyandrys.yahtzee;
 
-import java.util.HashMap;
-
 /**
  * com.tonyandrys.yahtzee -
  *
@@ -12,6 +10,9 @@ import java.util.HashMap;
 
 // ScoreCard refactor for efficiency
 public class ScoreCard {
+
+    // Number of possible fields on this ScoreCard
+    public static final int NUMBER_OF_FIELDS = 16;
 
     // SCORE_FIELD Constants
     public static final int SCORE_FIELD_ONES = 0;
@@ -34,9 +35,10 @@ public class ScoreCard {
     /* Each scoring combination is assumed available if it is set to 0.
     * If a scoring combination is > 0, it is unavailable as it has been used by the player.
     * If a scoring combination == ZEROED_VALUE, the player has "zeroed" it, or selected the combination at the
-    * end of the round with a hand that assigned it no points. It is therefore unavailable to be used again. */
-    final public static int ZEROED_VALUE = -1;
-    final public static int AVAILABLE_SCORE = 0;
+    * end of the round with a hand that assigned it no points. It is therefore unavailable to be used again.
+    * Finally, if a scoring combination is -1, the space is available to be used by the player. */
+    final public static int ZEROED_VALUE = 0;
+    final public static int AVAILABLE_SCORE = -1;
 
     /* If the sum of all top half values >= BONUS_THRESHOLD, add VALUE_TOP_HALF_BONUS to the player's score. */
     final public static int BONUS_THRESHOLD = 63;
@@ -49,25 +51,16 @@ public class ScoreCard {
     final static public int VALUE_SM_STRAIGHT = 30;
     final static public int VALUE_LG_STRAIGHT = 40;
 
-    // Constants used to determine which array is used to build a Score Map
-    final static public int MAP_PLAYER_SCORES = 1;
-    final static public int MAP_HAND_SCORES = 2;
-
     /*
     *  A player's scores are stored as an integer array, where each index represents a field on the ScorePad.
     *  [ones, twos, threes, fours, fives, sixes, bonus, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Bonus Yahtzee, Chance, Total]
     */
     int[] scores;
-
-    // handScores is an integer array with similar structure to 'scores' which holds the "possible" value of each field after every roll of the dice.
-    int[] handScores;
-
     String playerName;
 
     public ScoreCard() {
         // Reserve 16 indices to represent each field on the scorecard, set all scores to zero to create a blank scorecard
         scores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         // Set player name to default value
         playerName = "NO NAME";
@@ -76,62 +69,44 @@ public class ScoreCard {
     public ScoreCard(String playerName) {
         // Reserve 16 indices to represent each field on the scorecard, set all scores to zero to create a blank scorecard.
         scores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         // Set player name to passed value
         this.playerName = playerName;
     }
 
     /**
-     * Returns a score from the field represented by SCORE_FIELD
-     * @param SCORE_FIELD SCORE_FIELD integer constant
-     * @return
+     * Returns a score from the a field of the ScoreCard.
+     * @param SCORE_FIELD ScoreCard.SCORE_FIELD constant representing the field to return
+     * @return returns value of desired score field as an integer
      */
     public int getScore(int SCORE_FIELD) {
         return scores[SCORE_FIELD];
     }
 
     /**
-     * Updates the score represented by SCORE_FIELD to `value`
-     * @param SCORE_FIELD Score field integer constant
-     * @param value desired value for SCORE_FIELD
+     * Sets the value of a ScoreCard field to an arbitrary value.
+     * @param SCORE_FIELD ScoreCard.SCORE_FIELD constant representing to field to return
+     * @param value New integer value for field
      */
     public void setScore(int SCORE_FIELD, int value) {
         scores[SCORE_FIELD] = value;
     }
 
     /**
-     * Returns a textViewResId -> Value Of score mapping of either the player's saved scores or the scores of the current hand.
-     * @param card MAP_PLAYER_SCORES returns saved scores, MAP_HAND_SCORES returns the values of every score field based on the current hand.
-     * @return Map filled with requested parameters
-     * @throws IllegalArgumentException if card != MAP_PLAYER_SCORES or MAP_HAND_SCORES
+     * Returns the player's scores as an array.
+     * @return int[] containing the player's scores in the format below:
+     * [ones, twos, threes, fours, fives, sixes, bonus, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Bonus Yahtzee, Chance, Total]
      */
-    // FIXME: Move these to ScoreManager, ScoreCard shouldn't handle this kind of thing. ScoreCard == Model, ScoreManager == Controller!
-    public HashMap<Integer, Integer> getScoreMap(int card) {
-        if (card == MAP_HAND_SCORES || card == MAP_PLAYER_SCORES) {
-            return buildMap(card);
-        } else {
-            throw new IllegalArgumentException("Illegal Score Map Requested! Passed value: " + card);
-        }
+    public int[] getScoreArray() {
+        return scores;
     }
 
-    private HashMap<Integer, Integer> buildMap(int card) {
-        HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
-
-         /* Resource IDs of TextViews which hold score values. */
-        int[] resIds = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.upper_bonus_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.bonus_yahtzee_value_textview, R.id.chance_value_textview, R.id.grand_total_value_textview};
-
-        // Compile either player scores or hand scores into a ResID -> Value map and return
-        if (card == MAP_PLAYER_SCORES) {
-            for (int i=0; i<resIds.length; i++) {
-                map.put(resIds[i], scores[i]);
-            }
-        } else if (card == MAP_HAND_SCORES) {
-            for (int i=0; i<resIds.length; i++) {
-                map.put(resIds[i], handScores[i]);
-            }
-        }
-        return map;
+    /**
+     * Returns the player's current score, which is the sum of all values contained in fields that have been used.
+     * @return
+     */
+    public int getPlayerScore() {
+        return scores[SCORE_FIELD_TOTAL];
     }
 
     public String getPlayerName() {
@@ -142,67 +117,5 @@ public class ScoreCard {
         this.playerName = playerName;
     }
 
-    public int getOnes() {
-        return scores[SCORE_FIELD_ONES];
-    }
 
-    public int getTwos() {
-        return scores[SCORE_FIELD_TWOS];
-    }
-
-    public int getThrees() {
-        return scores[SCORE_FIELD_THREES];
-    }
-
-    public int getFours() {
-        return scores[SCORE_FIELD_FOURS];
-    }
-
-    public int getFives() {
-        return scores[SCORE_FIELD_FIVES];
-    }
-
-    public int getSixes() {
-        return scores[SCORE_FIELD_SIXES];
-    }
-
-    public int getBonus() {
-        return scores[SCORE_FIELD_BONUS];
-    }
-
-    public int get3OfAKind() {
-        return scores[SCORE_FIELD_3_OF_A_KIND];
-    }
-
-    public int get4OfAKind() {
-        return scores[SCORE_FIELD_4_OF_A_KIND];
-    }
-
-    public int getFullHouse() {
-        return scores[SCORE_FIELD_FULL_HOUSE];
-    }
-
-    public int getSmStraight() {
-        return scores[SCORE_FIELD_SM_STRAIGHT];
-    }
-
-    public int getLgStraight() {
-        return scores[SCORE_FIELD_LG_STRAIGHT];
-    }
-
-    public int getYahtzee() {
-        return scores[SCORE_FIELD_YAHTZEE];
-    }
-
-    public int getBonusYahtzee() {
-        return scores[SCORE_FIELD_YAHTZEE_BONUS];
-    }
-
-    public int getChance() {
-        return scores[SCORE_FIELD_CHANCE];
-    }
-
-    public int getTotal() {
-        return scores[SCORE_FIELD_TOTAL];
-    }
 }

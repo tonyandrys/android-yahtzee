@@ -11,6 +11,7 @@ package com.tonyandrys.yahtzee;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.TreeSet;
 
 /**
@@ -19,6 +20,10 @@ import java.util.TreeSet;
 public class ScoreManager {
 
     private final String TAG = ScoreManager.class.getName();
+
+    // Map Type constants used for buildMap().
+    final static public int MAP_TYPE_PLAYER_SCORES = 1;
+    final static public int MAP_TYPE_HAND_SCORES = 2;
 
     // Dice counts necessary to score certain combinations
     final static public int COUNT_THREE_OF_A_KIND = 3;
@@ -33,11 +38,74 @@ public class ScoreManager {
 
     private ScoreCard playerScoreCard;
 
+    // Resource IDs used to map values to their respective views on the ScoreCard
+    int[] resIds = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.upper_bonus_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.bonus_yahtzee_value_textview, R.id.chance_value_textview, R.id.grand_total_value_textview};
+
+    // Each score field's possible value based off of the values of the dice rolled (hand values) are calculated and stored in this array
+    // Format: [ones, twos, threes, fours, fives, sixes, bonus, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Bonus Yahtzee, Chance, Total]
+    int[] handScores;
+
     /**
      * On construction, generate a blank ScoreCard for the player.
      */
     public ScoreManager() {
         playerScoreCard = new ScoreCard();
+        // Create a blank integer array to store calculated hand values
+        handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    }
+
+    public int getPlayerScore() {
+        return playerScoreCard.getPlayerScore();
+    }
+
+    public int getScoreMap() {
+
+    }
+
+    /**
+     * Builds a resId -> Value mapping of the hand scores for the values currently shown on the dice.
+     * @return HashMap<Integer, Integer> such that map.get(k) contains the VALUE for the TextView map.keyset[k]
+     */
+    public HashMap<Integer, Integer> getHandMap() {
+
+
+    }
+
+    /**
+     * Builds a display map (TextView resId -> Value), which is a ScoreCard representation suitable for display to the user.
+     * @param mapType ScoreManager.MAP_TYPE_PLAYER_SCORES for a map containing all fields of the player's ScoreCard, ScoreManager.MAP_TYPE_HAND_SCORES for the values of the current hand.
+     * @throws IllegalArgumentException if mapType != ScoreManager.MAP_TYPE_HAND_SCORES or ScoreManager.MAP_TYPE_PLAYER_SCORES
+     *
+     * @return
+     */
+    private HashMap<Integer, Integer> getScoreDisplayMap(int mapType) {
+        HashMap<Integer, Integer> map;
+
+        if (mapType == MAP_TYPE_PLAYER_SCORES) {
+            int[] scores = playerScoreCard.getScoreArray();
+            map = buildDisplayMap(scores);
+        } else if (mapType == MAP_TYPE_HAND_SCORES) {
+            map = buildDisplayMap(handScores);
+        } else {
+            throw new IllegalArgumentException("Invalid Map Type passed to buildDisplayMap()!");
+        }
+        return map;
+    }
+
+    /**
+     * Builds a display map from an arbitrary array of size 16. (16 being the number of fields on the scorecard).
+     * @return HashMap<Integer, Integer> map of (TextView resID[k] -> a[k])
+     */
+    private HashMap<Integer, Integer> buildDisplayMap(int[] a) {
+        // Precondition: passed array MUST be of size 16 for proper functionality of this method.
+        assert(a.length == ScoreCard.NUMBER_OF_FIELDS);
+
+        HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+        // Compile player scores into a HashMap and return
+        for (int i=0; i<resIds.length; i++) {
+            map.put(resIds[i], a[i]);
+        }
+        return map;
     }
 
     /**
@@ -45,26 +113,20 @@ public class ScoreManager {
      * @param diceValues integer values of dice
      * @return ScoreCard object with every score line item set to the value it is worth with this hand.
      */
-    public ScoreCard calculateHand(int[] diceValues) {
+    public void calculateHand(int[] diceValues) {
 
         // Get a copy of the current ScoreCard
         ScoreCard scoreCard = playerScoreCard;
 
         // Enumerate the dice in the hand and sort them by their values
-        ArrayList<Integer> countList = new ArrayList<Integer>();
-        countList = enumerateHand(diceValues);
+        ArrayList<Integer> countList = enumerateHand(diceValues);
 
-        // Calculate the top half score
-        scoreCard = tabulateTopHalf(countList, scoreCard);
+        // The following 3 functions will populate their respective portions of `handScores`. When tabulateBottomHalf()
+        // is complete, the array will be filled.
+        tabulateTopHalf(countList); // Calculate the top half score
+        tabulateStraights(diceValues); // Calculate straights if they exist
+        tabulateBottomHalf(countList); // Calculate the bottom half score
 
-        // Calculate straights if they exist
-        scoreCard = tabulateStraights(diceValues, scoreCard);
-
-        // Calculate the bottom half score
-        scoreCard = tabulateBottomHalf(countList, scoreCard);
-
-        // Return the calculated ScoreCard
-        return scoreCard;
     }
 
     /**
@@ -105,63 +167,58 @@ public class ScoreManager {
     /**
      * Tabulates the top half scores based on the passed list of dice counts and the player's current scores.
      * @param countList Integer list representing dice counts.
-     * @param scoreCard ScoreCard object to write calculations to.
      * @return Returns the passed ScoreCard object with the top half scores written to it.
      */
-    public ScoreCard tabulateTopHalf(ArrayList<Integer> countList, ScoreCard scoreCard) {
+    private void tabulateTopHalf(ArrayList<Integer> countList) {
 
         /* Check if each top half score combination is available. If it has not been used to score a previous hand,
-         * calculate the score and write it to the passed ScoreCard.
+         * calculate the score and write it to the field's corresponding index in handScores.
          * Top Half Scoring is trivial: score = |diceVal| * diceVal
          */
         Log.v(TAG, "Calculating Top Half Values for this hand...");
 
         // Ones
-        if (playerScoreCard.getOnes() == 0) {
-            int ones = countList.get(0);
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_ONES, countList.get(0));
-            Log.v(TAG, "Ones: " + scoreCard.getOnes());
+        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_ONES) == ScoreCard.AVAILABLE_SCORE) {
+            handScores[ScoreCard.SCORE_FIELD_ONES] = countList.get(0);
+            Log.v(TAG, "Ones: " + handScores[ScoreCard.SCORE_FIELD_ONES]);
         }
 
         // Twos
-        if (playerScoreCard.getTwos() == 0) {
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_TWOS, countList.get(1) * 2);
-            Log.v(TAG, "Twos: " + scoreCard.getTwos());
+        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_TWOS) == ScoreCard.AVAILABLE_SCORE) {
+            handScores[ScoreCard.SCORE_FIELD_TWOS] = countList.get(1) * 2;
+            Log.v(TAG, "Twos: " + handScores[ScoreCard.SCORE_FIELD_TWOS]);
         }
 
         // Threes
-        if (playerScoreCard.getThrees() == 0) {
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_THREES, countList.get(2) * 3);
-            Log.v(TAG, "Threes: " + scoreCard.getThrees());
+        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_THREES) == ScoreCard.AVAILABLE_SCORE) {
+            handScores[ScoreCard.SCORE_FIELD_THREES] = countList.get(2) * 3;
+            Log.v(TAG, "Threes: " + handScores[ScoreCard.SCORE_FIELD_THREES]);
         }
 
         // Fours
-        if (playerScoreCard.getFours() == 0) {
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_FOURS, countList.get(3) * 4);
-            Log.v(TAG, "Fours: " + scoreCard.getFours());
+        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_FOURS) == ScoreCard.AVAILABLE_SCORE) {
+            handScores[ScoreCard.SCORE_FIELD_FOURS] = countList.get(3) * 4;
+            Log.v(TAG, "Fours: " + handScores[ScoreCard.SCORE_FIELD_FOURS]);
         }
 
         // Fives
-        if (playerScoreCard.getFives() == 0) {
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_FIVES, countList.get(4) * 5);
-            Log.v(TAG, "Fives: " + scoreCard.getFives());
+        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_FIVES) == ScoreCard.AVAILABLE_SCORE) {
+            handScores[ScoreCard.SCORE_FIELD_FIVES] = countList.get(4) * 5;
+            Log.v(TAG, "Fives: " + handScores[ScoreCard.SCORE_FIELD_FIVES]);
         }
 
         // Sixes
-        if (playerScoreCard.getSixes() == 0) {
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_SIXES, countList.get(5) * 6);
-            Log.v(TAG, "Sixes: " + scoreCard.getSixes());
+        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_SIXES) == ScoreCard.AVAILABLE_SCORE) {
+            handScores[ScoreCard.SCORE_FIELD_SIXES] = countList.get(5) * 6;
+            Log.v(TAG, "Sixes: " + playerScoreCard.getScore(ScoreCard.SCORE_FIELD_SIXES));
         }
-
-        return scoreCard;
     }
 
     /**
      * Checks for straights in this hand of diceValues and writes them to the passed ScoreCard.
      * @param diceValues Set of dice values as integers
-     * @return Returns the passed ScoreCard object with straight scores written to it.
      */
-    public ScoreCard tabulateStraights(int[] diceValues, ScoreCard scoreCard) {
+    private void tabulateStraights(int[] diceValues) {
 
         // Construct a TreeSet and add dice values to it. A TreeSet conveniently removes duplicates and we get
         // sorting for free. Thanks to Gabriel Negut of StackOverflow for this optimization!
@@ -173,30 +230,26 @@ public class ScoreManager {
         /* A Large Straight is represented in the TreeSet if it contains five integers. This means the hand contains no
         duplicate values, and due to the number of possible combinations on a six sided die, the only arrangements
         which yield 5 unique values are in sequential order. */
-        if (playerScoreCard.getLgStraight() == 0 && enumTree.size() == TREE_COUNT_LARGE_STRAIGHT) {
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_LG_STRAIGHT, ScoreCard.VALUE_LG_STRAIGHT);
-            Log.v(TAG, "LgStraight: " + scoreCard.getLgStraight());
+        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_LG_STRAIGHT) == ScoreCard.AVAILABLE_SCORE && enumTree.size() == TREE_COUNT_LARGE_STRAIGHT) {
+            handScores[ScoreCard.SCORE_FIELD_LG_STRAIGHT] = ScoreCard.VALUE_LG_STRAIGHT;
+            Log.v(TAG, "LgStraight: " + handScores[ScoreCard.SCORE_FIELD_LG_STRAIGHT]);
 
         }
 
         /* A Small Straight is represented in the TreeSet if it contains four integers AND the difference between the
          * largest and smallest integers is 3. */
-        if ((playerScoreCard.getSmStraight() == 0) && (enumTree.size() == TREE_COUNT_SMALL_STRAIGHT) && (enumTree.last() - enumTree.first() == TREE_SMALL_STRAIGHT_DIFFERENCE)) {
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_SM_STRAIGHT, ScoreCard.VALUE_SM_STRAIGHT);
-            Log.v(TAG, "SmStraight: " + scoreCard.getSmStraight());
+        if ((playerScoreCard.getScore(ScoreCard.SCORE_FIELD_SM_STRAIGHT)) == ScoreCard.AVAILABLE_SCORE && (enumTree.size() == TREE_COUNT_SMALL_STRAIGHT) && (enumTree.last() - enumTree.first() == TREE_SMALL_STRAIGHT_DIFFERENCE)) {
+            handScores[ScoreCard.SCORE_FIELD_SM_STRAIGHT] = ScoreCard.VALUE_SM_STRAIGHT;
+            Log.v(TAG, "SmStraight: " + handScores[ScoreCard.SCORE_FIELD_SM_STRAIGHT]);
         }
-
-        return scoreCard;
-
     }
 
     /**
      * Tabulates the bottom half scores based on passed array of dice counts and the player's current scores.
      * @param countList List of dice counts.
-     * @param scoreCard ScoreCard object to write calculated values to.
      * @Return Returns the passed ScoreCard object with the top half scores written to it.
      */
-    public ScoreCard tabulateBottomHalf(ArrayList<Integer> countList, ScoreCard scoreCard) {
+    private void tabulateBottomHalf(ArrayList<Integer> countList) {
 
         // Bottom half scores often award points based on the sum of the hand, so calculate this now. FIXME: OPTIMIZATION! perform this only if necessary (i.e. a 3ofakind, 4ofakind, chance hasn't been used, etc)
         int diceSum = 0;
@@ -211,45 +264,56 @@ public class ScoreManager {
 
         // Three of a Kind - Applies if three of the same valued dice exist in the hand.
         // Score == sum of all dice in the hand
-        if (playerScoreCard.get3OfAKind() == 0 && countList.contains(COUNT_THREE_OF_A_KIND)) {
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_3_OF_A_KIND, diceSum);
-            Log.v(TAG, "Three Of A Kind: " + scoreCard.get3OfAKind());
+        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_3_OF_A_KIND) == 0 && countList.contains(COUNT_THREE_OF_A_KIND)) {
+            handScores[ScoreCard.SCORE_FIELD_3_OF_A_KIND] = diceSum;
+            Log.v(TAG, "Three Of A Kind: " + handScores[ScoreCard.SCORE_FIELD_3_OF_A_KIND]);
         }
 
         // Full House - Applies if the hand consists of a three of a kind and a pair.
-        if (playerScoreCard.getFullHouse() == 0 && countList.contains(COUNT_THREE_OF_A_KIND) && countList.contains(COUNT_PAIR)) {
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_FULL_HOUSE, ScoreCard.VALUE_FULL_HOUSE);
-            Log.v(TAG, "Full House: " + scoreCard.getFullHouse());
+        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_FULL_HOUSE) == ScoreCard.AVAILABLE_SCORE && countList.contains(COUNT_THREE_OF_A_KIND) && countList.contains(COUNT_PAIR)) {
+            handScores[ScoreCard.SCORE_FIELD_FULL_HOUSE] = ScoreCard.VALUE_FULL_HOUSE;
+            Log.v(TAG, "Full House: " + playerScoreCard.getScore(ScoreCard.SCORE_FIELD_FULL_HOUSE));
         }
 
         // Four of a Kind - Applies if four of the same valued dice exist in the hand.
-        if (playerScoreCard.get4OfAKind() == 0 && countList.contains(COUNT_FOUR_OF_A_KIND)) {
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_4_OF_A_KIND, diceSum);
-            Log.v(TAG, "Four Of A Kind: " + scoreCard.get4OfAKind());
+        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_4_OF_A_KIND) == ScoreCard.AVAILABLE_SCORE && countList.contains(COUNT_FOUR_OF_A_KIND)) {
+            handScores[ScoreCard.SCORE_FIELD_4_OF_A_KIND] = diceSum;
+            Log.v(TAG, "Four Of A Kind: " + handScores[ScoreCard.SCORE_FIELD_4_OF_A_KIND]);
         }
 
         // Yahtzee - Applies if all five dice values are identical.
         // FIXME: Must add in the capability to score multiple yahtzees!
-        if (playerScoreCard.getYahtzee() == 0 && countList.contains(COUNT_YAHTZEE)) {
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_YAHTZEE, ScoreCard.VALUE_YAHTZEE);
-            Log.v(TAG, "Yahtzee: " + scoreCard.getYahtzee());
+        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_YAHTZEE) == ScoreCard.AVAILABLE_SCORE && countList.contains(COUNT_YAHTZEE)) {
+            handScores[ScoreCard.SCORE_FIELD_YAHTZEE] = ScoreCard.VALUE_YAHTZEE;
+            Log.v(TAG, "Yahtzee: " + handScores[ScoreCard.SCORE_FIELD_YAHTZEE]);
         }
 
         // Chance - The wildcard score is simply the sum of all dice in the hand.
-        if (playerScoreCard.getChance() == 0) {
-            scoreCard.setScore(ScoreCard.SCORE_FIELD_CHANCE, diceSum);
-            Log.v(TAG, "Chance: " + scoreCard.getChance());
+        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_CHANCE) == ScoreCard.AVAILABLE_SCORE) {
+            handScores[ScoreCard.SCORE_FIELD_CHANCE] = diceSum;
+            Log.v(TAG, "Chance: " + handScores[ScoreCard.SCORE_FIELD_CHANCE]);
         }
+    }
 
-        return scoreCard;
+    /**
+     * Clears any information in the hand scores array to be ready for the next calculation.
+     */
+    public void clearHandScores() {
+        for (int i=0; i<handScores.length; i++) {
+            handScores[i] = 0;
+        }
+        Log.v(TAG, "Hand Score Array has been cleared!");
     }
 
     public int getTotalScore() {
-        return playerScoreCard.getTotal();
+        return playerScoreCard.getScore(ScoreCard.SCORE_FIELD_TOTAL);
     }
+
+
 
     public void writeScore(int SCORE_FIELD, int value) {
         playerScoreCard.setScore(SCORE_FIELD, value);
+        Log.v(TAG, "Wrote " + value + " to score field " + SCORE_FIELD);
     }
 
 }

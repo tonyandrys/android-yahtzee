@@ -82,7 +82,7 @@ public class GameActivity extends Activity {
         // Get each die face and apply them to the views on screen
         updateDiceFaces();
 
-        // Calculate score of this hand
+        // Build score map of this hand and apply to UI
         ScoreCard scoreCard = scoreManager.calculateHand(board.getDiceValues());
 
         // Apply calculated scores to the Scorepad UI
