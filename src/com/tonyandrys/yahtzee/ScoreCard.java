@@ -32,7 +32,6 @@ public class ScoreCard {
     public static final int SCORE_FIELD_YAHTZEE = 12;
     public static final int SCORE_FIELD_YAHTZEE_BONUS = 13;
     public static final int SCORE_FIELD_CHANCE = 14;
-    public static final int SCORE_FIELD_TOTAL = 15;
 
     final public static int ZEROED_VALUE = -1;
     final public static int AVAILABLE_SCORE = 0;

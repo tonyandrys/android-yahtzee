@@ -144,15 +144,18 @@ public class GameActivity extends Activity {
     public void updateScorepadDisplay(HashMap<Integer, Integer> scoreMap, boolean finalized) {
         // k := iterator over the keys of scoreMap (resIDs)
         Iterator k = scoreMap.keySet().iterator();
+        Log.v(TAG, "Updating Score Display...");
 
         // For every key in k, apply the contained value in its respective value
         while (k.hasNext()) {
 
             // Get next resource ID in set
             int resId = (Integer)k.next(); //possibly unsafe cast?
+            //Log.v(TAG, "Next ResID: " + resId);
 
             // Check if the field is available. If it can't be set by the user because it contains a stored value or was zeroed, there's no point in updating the value.
             if (availableScoreIDs.contains(resId) && scoreMap.containsKey(resId)) {
+                //Log.v(TAG, resId + "is available AND in the scoreMap");
 
                 // Get the associated value
                 int value = scoreMap.get(resId);
@@ -164,6 +167,7 @@ public class GameActivity extends Activity {
                 tv.setTextColor(getResources().getColor(R.color.available_scorepad_field));
                 tv.setVisibility(View.VISIBLE);
                 tv.setText(Integer.toString(value));
+                //Log.v(TAG, "Applied " + Integer.toString(value) + " to view " + resId);
             }
         }
     }

@@ -10,7 +10,10 @@ package com.tonyandrys.yahtzee;
 
 import android.util.Log;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.TreeSet;
 
 /**
  * Handles score calculation and recording into a ScoreCard object
@@ -42,7 +45,7 @@ public class ScoreManager {
     int[] resIds = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.upper_bonus_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.bonus_yahtzee_value_textview, R.id.chance_value_textview};
 
     // Each score field's possible value based off of the values of the dice rolled (hand values) are calculated and stored in this array
-    // Format: [ones, twos, threes, fours, fives, sixes, bonus, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Bonus Yahtzee, Chance, Total]
+    // Format: [ones, twos, threes, fours, fives, sixes, bonus, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Bonus Yahtzee, Chance]
     int[] handScores;
 
     /**
@@ -51,7 +54,7 @@ public class ScoreManager {
     public ScoreManager() {
         playerScoreCard = new ScoreCard();
         // Create a blank integer array to store calculated hand values
-        handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         // Build the array of available score fields (should be all fields on creation).
         availableScoreFields = getAvailableScoreFields();
@@ -91,8 +94,6 @@ public class ScoreManager {
      * @return HashMap<Integer, Integer> map of (TextView resID[k] -> a[k])
      */
     private HashMap<Integer, Integer> buildDisplayMap(int[] a) {
-        // Precondition: passed array MUST be of size 16 for proper functionality of this method.
-        assert(a.length == ScoreCard.NUMBER_OF_FIELDS);
 
         HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
         // Compile player scores into a HashMap and return
@@ -263,18 +264,24 @@ public class ScoreManager {
         if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_3_OF_A_KIND) == 0 && countList.contains(COUNT_THREE_OF_A_KIND)) {
             handScores[ScoreCard.SCORE_FIELD_3_OF_A_KIND] = diceSum;
             Log.v(TAG, "Three Of A Kind: " + handScores[ScoreCard.SCORE_FIELD_3_OF_A_KIND]);
+        } else {
+            Log.v(TAG, "Three/Kind is unavailable! Value in ScoreCard is " + playerScoreCard.getScore(ScoreCard.SCORE_FIELD_3_OF_A_KIND));
         }
 
         // Full House - Applies if the hand consists of a three of a kind and a pair.
         if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_FULL_HOUSE) == ScoreCard.AVAILABLE_SCORE && countList.contains(COUNT_THREE_OF_A_KIND) && countList.contains(COUNT_PAIR)) {
             handScores[ScoreCard.SCORE_FIELD_FULL_HOUSE] = ScoreCard.VALUE_FULL_HOUSE;
             Log.v(TAG, "Full House: " + playerScoreCard.getScore(ScoreCard.SCORE_FIELD_FULL_HOUSE));
+        } else {
+            Log.v(TAG, "Full House is unavailable! Value in ScoreCard is " + playerScoreCard.getScore(ScoreCard.SCORE_FIELD_FULL_HOUSE));
         }
 
         // Four of a Kind - Applies if four of the same valued dice exist in the hand.
         if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_4_OF_A_KIND) == ScoreCard.AVAILABLE_SCORE && countList.contains(COUNT_FOUR_OF_A_KIND)) {
             handScores[ScoreCard.SCORE_FIELD_4_OF_A_KIND] = diceSum;
             Log.v(TAG, "Four Of A Kind: " + handScores[ScoreCard.SCORE_FIELD_4_OF_A_KIND]);
+        } else {
+            Log.v(TAG, "Four/Kind is unavailable! Value in ScoreCard is " + playerScoreCard.getScore(ScoreCard.SCORE_FIELD_4_OF_A_KIND));
         }
 
         // Yahtzee - Applies if all five dice values are identical.
@@ -282,12 +289,16 @@ public class ScoreManager {
         if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_YAHTZEE) == ScoreCard.AVAILABLE_SCORE && countList.contains(COUNT_YAHTZEE)) {
             handScores[ScoreCard.SCORE_FIELD_YAHTZEE] = ScoreCard.VALUE_YAHTZEE;
             Log.v(TAG, "Yahtzee: " + handScores[ScoreCard.SCORE_FIELD_YAHTZEE]);
+        } else {
+            Log.v(TAG, "Yahtzee is unavailable! Value in ScoreCard is " + playerScoreCard.getScore(ScoreCard.SCORE_FIELD_YAHTZEE));
         }
 
         // Chance - The wildcard score is simply the sum of all dice in the hand.
         if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_CHANCE) == ScoreCard.AVAILABLE_SCORE) {
             handScores[ScoreCard.SCORE_FIELD_CHANCE] = diceSum;
             Log.v(TAG, "Chance: " + handScores[ScoreCard.SCORE_FIELD_CHANCE]);
+        } else {
+            Log.v(TAG, "Chance is unavailable! Value in ScoreCard is " + playerScoreCard.getScore(ScoreCard.SCORE_FIELD_CHANCE));
         }
 
     }
@@ -333,6 +344,14 @@ public class ScoreManager {
     public void writeScore(int SCORE_FIELD, int value) {
         playerScoreCard.setScore(SCORE_FIELD, value);
         Log.v(TAG, "Wrote " + value + " to score field " + SCORE_FIELD);
+        // Logging purposes, REMOVE
+        int[] newScores = playerScoreCard.getScoreArray();
+        String printMe = "{";
+        for (int i=0; i<newScores.length; i++) {
+            printMe += newScores[i] + ",";
+        }
+        printMe += "}";
+        Log.v(TAG, "scores: " + printMe);
     }
 
 }
