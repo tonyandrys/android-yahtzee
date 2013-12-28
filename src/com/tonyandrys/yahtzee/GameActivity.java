@@ -105,15 +105,15 @@ public class GameActivity extends Activity {
         // When a new round starts, we remove the temporary scores from the display by getting player's scoreMap and updating the display again
         updateScorepadDisplay(scoreManager.getScoreDisplayMap(ScoreManager.MAP_TYPE_PLAYER_SCORES));
 
-        // Clear handScores to allow temporary value calculation for next turn.
-        scoreManager.clearHandScores();
-
         // Reset turn count and hold status on all dice
         turnCount = 3;
         for (int i=0; i<5; i++) {
             board.holdDie(i, false);
             toggleDiceLock(i, false);
         }
+
+        // Update Total
+        updatePlayerTotal();
 
         Button rollButton = (Button)findViewById(R.id.roll_dice_button);
         rollButton.setEnabled(true);
@@ -133,7 +133,7 @@ public class GameActivity extends Activity {
             int resId = (Integer)k.next(); //possibly unsafe cast?
 
             // Check if the field is available. If it can't be set by the user because it contains a stored value or was zeroed, there's no point in updating the value.
-            if (scoreMap.containsKey(resId)) {
+            if (availableScoreIDs.contains(resId) && scoreMap.containsKey(resId)) {
 
                 // Get the associated value
                 int value = scoreMap.get(resId);
@@ -145,6 +145,19 @@ public class GameActivity extends Activity {
                 tv.setText(Integer.toString(value));
             }
         }
+    }
+
+    /**
+     * Gets the current total score of the player and updates the on-screen ScoreCard.
+     */
+    public void updatePlayerTotal() {
+
+        // Get the player's total from ScoreManager
+        String total = Integer.toString(scoreManager.getTotalScore());
+
+        // Apply string converted total to TextView
+        TextView totalTextView = (TextView)findViewById(R.id.grand_total_value_textview);
+        totalTextView.setText(total);
     }
 
     /**

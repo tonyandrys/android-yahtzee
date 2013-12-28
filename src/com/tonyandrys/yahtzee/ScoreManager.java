@@ -108,6 +108,9 @@ public class ScoreManager {
      */
     public void calculateHand(int[] diceValues) {
 
+        // Clear handScores values from last turn, if they exist.
+        clearHandScores();
+
         // Enumerate the dice in the hand and sort them by their values
         ArrayList<Integer> countList = enumerateHand(diceValues);
 
@@ -202,7 +205,6 @@ public class ScoreManager {
             Log.v(TAG, "Sixes: " + playerScoreCard.getScore(ScoreCard.SCORE_FIELD_SIXES));
         }
 
-        Log.v(TAG, handScores.toString());
     }
 
     /**
@@ -234,7 +236,6 @@ public class ScoreManager {
             Log.v(TAG, "SmStraight: " + handScores[ScoreCard.SCORE_FIELD_SM_STRAIGHT]);
         }
 
-        Log.v(TAG, handScores.toString());
     }
 
     /**
@@ -289,7 +290,6 @@ public class ScoreManager {
             Log.v(TAG, "Chance: " + handScores[ScoreCard.SCORE_FIELD_CHANCE]);
         }
 
-        Log.v(TAG, handScores.toString());
     }
 
     /**
