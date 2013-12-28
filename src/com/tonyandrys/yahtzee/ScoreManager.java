@@ -33,6 +33,7 @@ public class ScoreManager {
     final static public int TREE_COUNT_LARGE_STRAIGHT = 5;
     final static public int TREE_COUNT_SMALL_STRAIGHT = 4;
     final static public int TREE_SMALL_STRAIGHT_DIFFERENCE = 3;
+    final static public int TREE_LARGE_STRAIGHT_DIFFERENCE = 4;
 
     private ScoreCard playerScoreCard;
     private HashSet availableScoreFields;
@@ -51,7 +52,9 @@ public class ScoreManager {
         playerScoreCard = new ScoreCard();
         // Create a blank integer array to store calculated hand values
         handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        playerScoreCard.getAvailableScoreFields
+
+        // Build the array of available score fields (should be all fields on creation).
+        availableScoreFields = getAvailableScoreFields();
     }
 
     public int getPlayerScore() {
@@ -140,7 +143,7 @@ public class ScoreManager {
 
         // Once all the dice counts are updated, write the cardinality list and return.
         Log.v(TAG, "Hand Processed." );
-        Log.v(TAG, "Dice counts - Ones: " + diceCount[0] + " Twos: " + diceCount[1] + " Threes: " + diceCount[2] + " Fours: " + diceCount[3] + " Fives: " + diceCount[4] + "Sixes: " + diceCount[5]);
+        Log.v(TAG, "Dice counts - Ones: " + diceCount[0] + " Twos: " + diceCount[1] + " Threes: " + diceCount[2] + " Fours: " + diceCount[3] + " Fives: " + diceCount[4] + " Sixes: " + diceCount[5]);
 
         // Convert to ArrayList to ease checking set membership when tabulating score.
         ArrayList<Integer> countList = new ArrayList<Integer>();
@@ -198,6 +201,8 @@ public class ScoreManager {
             handScores[ScoreCard.SCORE_FIELD_SIXES] = countList.get(5) * 6;
             Log.v(TAG, "Sixes: " + playerScoreCard.getScore(ScoreCard.SCORE_FIELD_SIXES));
         }
+
+        Log.v(TAG, handScores.toString());
     }
 
     /**
@@ -206,6 +211,8 @@ public class ScoreManager {
      */
     private void tabulateStraights(int[] diceValues) {
 
+        Log.v(TAG, "Calculating Straight Values for this hand...");
+
         // Construct a TreeSet and add dice values to it. A TreeSet conveniently removes duplicates and we get
         // sorting for free. Thanks to Gabriel Negut of StackOverflow for this optimization!
         TreeSet<Integer> enumTree = new TreeSet<Integer>();
@@ -213,10 +220,8 @@ public class ScoreManager {
             enumTree.add(diceValues[i]);
         }
 
-        /* A Large Straight is represented in the TreeSet if it contains five integers. This means the hand contains no
-        duplicate values, and due to the number of possible combinations on a six sided die, the only arrangements
-        which yield 5 unique values are in sequential order. */
-        if (playerScoreCard.getScore(ScoreCard.SCORE_FIELD_LG_STRAIGHT) == ScoreCard.AVAILABLE_SCORE && enumTree.size() == TREE_COUNT_LARGE_STRAIGHT) {
+        /* A Large Straight is represented in the TreeSet if it contains five integers AND the difference between the largest and smallest integer is 4. */
+        if ((playerScoreCard.getScore(ScoreCard.SCORE_FIELD_LG_STRAIGHT) == ScoreCard.AVAILABLE_SCORE) && (enumTree.size() == TREE_COUNT_LARGE_STRAIGHT) && (enumTree.last() - enumTree.first() == TREE_LARGE_STRAIGHT_DIFFERENCE)) {
             handScores[ScoreCard.SCORE_FIELD_LG_STRAIGHT] = ScoreCard.VALUE_LG_STRAIGHT;
             Log.v(TAG, "LgStraight: " + handScores[ScoreCard.SCORE_FIELD_LG_STRAIGHT]);
 
@@ -228,6 +233,8 @@ public class ScoreManager {
             handScores[ScoreCard.SCORE_FIELD_SM_STRAIGHT] = ScoreCard.VALUE_SM_STRAIGHT;
             Log.v(TAG, "SmStraight: " + handScores[ScoreCard.SCORE_FIELD_SM_STRAIGHT]);
         }
+
+        Log.v(TAG, handScores.toString());
     }
 
     /**
@@ -241,6 +248,9 @@ public class ScoreManager {
         for (int i=0; i<countList.size(); i++) {
             diceSum += (countList.get(i) * (i+1));
         }
+
+        Log.v(TAG, "Calculating Bottom Half Values for this hand...");
+
 
         Log.v(TAG, "---");
         Log.v(TAG, "Sum of all dice is: " + Integer.toString(diceSum));
@@ -278,6 +288,8 @@ public class ScoreManager {
             handScores[ScoreCard.SCORE_FIELD_CHANCE] = diceSum;
             Log.v(TAG, "Chance: " + handScores[ScoreCard.SCORE_FIELD_CHANCE]);
         }
+
+        Log.v(TAG, handScores.toString());
     }
 
     /**
@@ -298,7 +310,7 @@ public class ScoreManager {
                 Log.v(TAG, "Score Field " + i + " is available");
             }
         }
-        
+
         return returnSet;
     }
 

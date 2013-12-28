@@ -17,6 +17,7 @@ public class GameActivity extends Activity {
     SoundManager soundManager;
     ScoreManager scoreManager;
     ArrayList<ImageView> diceViews;
+    HashSet<Integer> availableScoreIDs;
     Board board;
     int turnCount;
 
@@ -29,10 +30,10 @@ public class GameActivity extends Activity {
         board = new Board(this, new Random());
         soundManager = new SoundManager(this);
         diceViews = new ArrayList<ImageView>();
-        //availableScoreIDs = new ArrayList<Integer>();
 
-        // Initialize ScoreManager to set score to zero
+        // Initialize ScoreManager to set score to zero and get list of available score fields
         scoreManager = new ScoreManager();
+        availableScoreIDs = scoreManager.getAvailableScoreFields();
 
         // Apply dieTouchListener to Dice ImageViews and add to master list
         int[] resIds = {R.id.die_1_imageview, R.id.die_2_imageview, R.id.die_3_imageview, R.id.die_4_imageview, R.id.die_5_imageview};
@@ -116,8 +117,6 @@ public class GameActivity extends Activity {
 
         Button rollButton = (Button)findViewById(R.id.roll_dice_button);
         rollButton.setEnabled(true);
-
-
     }
 
     /**
@@ -228,14 +227,13 @@ public class GameActivity extends Activity {
 
                 // Disable this score field from being used again during this game.
                 tv.setTextColor(R.color.used_scorepad_field); // Set color
-                int removeIndex = availableScoreIDs.indexOf(tv.getId());
-                availableScoreIDs.remove(removeIndex); // Remove TextView ID
+                availableScoreIDs.remove(tv.getId());
 
                 // A Round is finished when a score is recorded, so start the next round.
                 newRound();
             } else {
                 // Do nothing! Can't write to the same score field twice.
-                // FIXME: Add some indicator this field can't be written to here... a sound clip, small toast or something like that?
+                Log.e(TAG, "Cannot write to field! Already in use.");
             }
         }
     }

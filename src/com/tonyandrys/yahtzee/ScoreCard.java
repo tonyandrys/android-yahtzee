@@ -32,13 +32,8 @@ public class ScoreCard {
     public static final int SCORE_FIELD_CHANCE = 14;
     public static final int SCORE_FIELD_TOTAL = 15;
 
-    /* Each scoring combination is assumed available if it is set to 0.
-    * If a scoring combination is > 0, it is unavailable as it has been used by the player.
-    * If a scoring combination == ZEROED_VALUE, the player has "zeroed" it, or selected the combination at the
-    * end of the round with a hand that assigned it no points. It is therefore unavailable to be used again.
-    * Finally, if a scoring combination is -1, the space is available to be used by the player. */
-    final public static int ZEROED_VALUE = 0;
-    final public static int AVAILABLE_SCORE = -1;
+    final public static int ZEROED_VALUE = -1;
+    final public static int AVAILABLE_SCORE = 0;
 
     /* If the sum of all top half values >= BONUS_THRESHOLD, add VALUE_TOP_HALF_BONUS to the player's score. */
     final public static int BONUS_THRESHOLD = 63;
@@ -60,7 +55,7 @@ public class ScoreCard {
 
     public ScoreCard() {
         // Reserve 16 indices to represent each field on the scorecard, set all scores to zero to create a blank scorecard
-        scores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        scores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         // Set player name to default value
         playerName = "NO NAME";
@@ -68,7 +63,7 @@ public class ScoreCard {
 
     public ScoreCard(String playerName) {
         // Reserve 16 indices to represent each field on the scorecard, set all scores to zero to create a blank scorecard.
-        scores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        scores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         // Set player name to passed value
         this.playerName = playerName;
