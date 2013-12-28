@@ -2,4 +2,7 @@
 <resources>
     <color name="available_scorepad_field">#787878</color>
     <color name="used_scorepad_field">#000000</color>
+
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
 </resources>

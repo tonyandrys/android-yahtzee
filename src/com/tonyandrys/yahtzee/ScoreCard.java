@@ -1,5 +1,7 @@
 package com.tonyandrys.yahtzee;
 
+import java.util.Arrays;
+
 /**
  * com.tonyandrys.yahtzee -
  *
@@ -48,14 +50,14 @@ public class ScoreCard {
 
     /*
     *  A player's scores are stored as an integer array, where each index represents a field on the ScorePad.
-    *  [ones, twos, threes, fours, fives, sixes, bonus, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Bonus Yahtzee, Chance, Total]
+    *  [ones, twos, threes, fours, fives, sixes, bonus, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Bonus Yahtzee, Chance]
     */
     int[] scores;
     String playerName;
 
     public ScoreCard() {
         // Reserve 16 indices to represent each field on the scorecard, set all scores to zero to create a blank scorecard
-        scores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        scores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         // Set player name to default value
         playerName = "NO NAME";
@@ -63,7 +65,7 @@ public class ScoreCard {
 
     public ScoreCard(String playerName) {
         // Reserve 16 indices to represent each field on the scorecard, set all scores to zero to create a blank scorecard.
-        scores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        scores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         // Set player name to passed value
         this.playerName = playerName;
@@ -101,7 +103,17 @@ public class ScoreCard {
      * @return
      */
     public int getPlayerScore() {
-        return scores[SCORE_FIELD_TOTAL];
+        int sum = 0;
+        int[] sorted = scores;
+        Arrays.sort(sorted);
+        for (int i=(sorted.length-1); i>=0; i--) {
+            if (sorted[i] > 0) {
+                sum = sum + sorted[i];
+            } else if (sorted[i] == 0 || sorted[i] == -1) {
+                break;
+            }
+        }
+        return sum;
     }
 
     public String getPlayerName() {

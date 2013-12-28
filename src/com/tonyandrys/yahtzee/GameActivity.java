@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,7 +20,8 @@ public class GameActivity extends Activity {
     ArrayList<ImageView> diceViews;
     HashSet<Integer> availableScoreIDs;
     Board board;
-    int turnCount;
+    int rollCount;
+    int roundCount;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,7 +46,7 @@ public class GameActivity extends Activity {
         }
 
         // Apply scoreTouchListener to Score TextViews and set every resource ID as available as no scores are recorded yet.
-        int[] scoreResIDs = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.upper_bonus_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.bonus_yahtzee_value_textview, R.id.chance_value_textview, R.id.grand_total_value_textview};
+        int[] scoreResIDs = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.upper_bonus_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.bonus_yahtzee_value_textview, R.id.chance_value_textview};
         for (int i=0; i<scoreResIDs.length; i++) {
             TextView tv = (TextView)findViewById(scoreResIDs[i]);
             tv.setOnClickListener(new scoreTouchListener());
@@ -67,7 +69,10 @@ public class GameActivity extends Activity {
         die.setOnClickListener(new dieTouchListener());
 
         // Start the first round and set the turn count to 3.
-        turnCount = 3;
+        rollCount = 3;
+
+        // A game of yahtzee consists of 13 rounds
+        roundCount = 13;
     }
 
     /**
@@ -85,13 +90,14 @@ public class GameActivity extends Activity {
         // Build score map of this hand and apply to UI
         scoreManager.calculateHand(board.getDiceValues());
         HashMap<Integer, Integer> map = scoreManager.getScoreDisplayMap(ScoreManager.MAP_TYPE_HAND_SCORES);
-        updateScorepadDisplay(map);
+        updateScorepadDisplay(map, false);
 
-        // Decrement turn counter
-        turnCount--;
+        // Decrement roll counter and update roll counter on display
+        rollCount--;
+        updateRollCountDisplay();
 
         // If we're out of turns, disable the roll button to force the player to score.
-        if (turnCount == 0) {
+        if (rollCount == 0) {
             Button rollButton = (Button)findViewById(R.id.roll_dice_button);
             rollButton.setEnabled(false);
         }
@@ -103,10 +109,10 @@ public class GameActivity extends Activity {
      */
     public void newRound() {
         // When a new round starts, we remove the temporary scores from the display by getting player's scoreMap and updating the display again
-        updateScorepadDisplay(scoreManager.getScoreDisplayMap(ScoreManager.MAP_TYPE_PLAYER_SCORES));
+        updateScorepadDisplay(scoreManager.getScoreDisplayMap(ScoreManager.MAP_TYPE_PLAYER_SCORES), true);
 
-        // Reset turn count and hold status on all dice
-        turnCount = 3;
+        // Reset roll count and hold status on all dice
+        rollCount = 3;
         for (int i=0; i<5; i++) {
             board.holdDie(i, false);
             toggleDiceLock(i, false);
@@ -115,14 +121,27 @@ public class GameActivity extends Activity {
         // Update Total
         updatePlayerTotal();
 
-        Button rollButton = (Button)findViewById(R.id.roll_dice_button);
-        rollButton.setEnabled(true);
+        // Update turn count on UI
+        updateRollCountDisplay();
+
+        // Decrement a round
+        roundCount--;
+
+        // if this is the end of the game, it's game over!
+        if (roundCount == 0) {
+            FrameLayout gameOverPanel = (FrameLayout)findViewById(R.id.game_over_panel);
+            gameOverPanel.setVisibility(View.VISIBLE);
+        } else {
+            Button rollButton = (Button)findViewById(R.id.roll_dice_button);
+            rollButton.setEnabled(true);
+        }
     }
 
     /**
      * Updates the on-screen Scorepad to the values stored in an ArrayScoreCard
+     * @param finalized True if permanent scores are being displayed, false if hand scores are being displayed
      */
-    public void updateScorepadDisplay(HashMap<Integer, Integer> scoreMap) {
+    public void updateScorepadDisplay(HashMap<Integer, Integer> scoreMap, boolean finalized) {
         // k := iterator over the keys of scoreMap (resIDs)
         Iterator k = scoreMap.keySet().iterator();
 
@@ -138,9 +157,11 @@ public class GameActivity extends Activity {
                 // Get the associated value
                 int value = scoreMap.get(resId);
 
-                // Apply appropriate value & color to the TextView
+                // Apply appropriate value
                 TextView tv = (TextView)findViewById(resId);
-                tv.setTextColor(R.color.available_scorepad_field);
+
+                // Apply appropriate color to this item (black indicates player score, gray indicates a temporary value)
+                tv.setTextColor(getResources().getColor(R.color.available_scorepad_field));
                 tv.setVisibility(View.VISIBLE);
                 tv.setText(Integer.toString(value));
             }
@@ -168,6 +189,14 @@ public class GameActivity extends Activity {
             Drawable d = board.getDieFace(i);
             diceViews.get(i).setImageDrawable(d);
         }
+    }
+
+    /**
+     * Updates the displayed roll count based on the value of rollCount.
+     */
+    private void updateRollCountDisplay() {
+        TextView rollCountTextView = (TextView)findViewById(R.id.roll_count_textview);
+        rollCountTextView.setText(Integer.toString(rollCount));
     }
 
     /**
@@ -239,7 +268,7 @@ public class GameActivity extends Activity {
                 Log.v(TAG, "Wrote " + value + " to ScoreField ID " + tag);
 
                 // Disable this score field from being used again during this game.
-                tv.setTextColor(R.color.used_scorepad_field); // Set color
+                tv.setTextColor(getResources().getColor(R.color.used_scorepad_field)); // Set color
                 availableScoreIDs.remove(tv.getId());
 
                 // A Round is finished when a score is recorded, so start the next round.
@@ -250,5 +279,7 @@ public class GameActivity extends Activity {
             }
         }
     }
+
+
 }
 
