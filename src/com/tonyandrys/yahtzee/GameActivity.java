@@ -14,7 +14,7 @@ import java.util.*;
 
 public class GameActivity extends Activity {
 
-    public final String TAG = GameActivity.class.getName();
+    private final String TAG = GameActivity.class.getName();
     SoundManager soundManager;
     ScoreManager scoreManager;
     ArrayList<ImageView> diceViews;

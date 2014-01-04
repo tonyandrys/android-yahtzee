@@ -10,10 +10,7 @@ package com.tonyandrys.yahtzee;
 
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Handles score calculation and recording into a ScoreCard object
@@ -41,6 +38,7 @@ public class ScoreManager {
     private ScoreCard playerScoreCard;
     private HashSet availableScoreFields;
 
+    private LinkedList<Integer> handQueue;
     // Resource IDs used to map values to their respective views on the ScoreCard
     int[] resIds = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.upper_bonus_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.bonus_yahtzee_value_textview, R.id.chance_value_textview};
 
@@ -58,6 +56,9 @@ public class ScoreManager {
 
         // Build the array of available score fields (should be all fields on creation).
         availableScoreFields = getAvailableScoreFields();
+
+        // initialize handQueue
+        handQueue = new LinkedList<Integer>();
     }
 
     public int getPlayerScore() {
