@@ -54,13 +54,18 @@ public class ScoreField {
         this.hasScore = false;
         this.score = 0;
         this.tempScore = 0;
-        this.context = context;
+        this.context = activity.getApplicationContext();
 
         // Find the TextView in the UI associated with this ScoreField
         TableLayout tl = (TableLayout)activity.findViewById(R.id.scorepad_container_tablelayout);
-        tv = (TextView)tl.findViewWithTag(this.key);
+        Log.v(TAG, "TableLayout ID is "+ tl.getId());
+        this.tv = (TextView)tl.findViewWithTag(this.key);
         assert(tl != null);
-        assert(tv != null);
+        assert(this.tv != null);
+    }
+
+    public int getKey() {
+        return this.key;
     }
 
     public int getPlayerScore() {
@@ -105,11 +110,11 @@ public class ScoreField {
         // Now, update the player's total score stored in ScoreCard.
         if (this.key <= UPPER_SECTION_MAX_KEY) {
             // This ScoreField is in the upper section
-            Log.v(TAG, "Updating upper section total.");
+            Log.v(TAG, "Updating upper section total...");
             sc.incrementPlayerTotalScore(UPPER_SECTION, score);
         } else if (this.key <= LOWER_SECTION_MAX_KEY) {
             // This ScoreField is in the lower section
-            Log.v(TAG, "Updating lower section total.");
+            Log.v(TAG, "Updating lower section total...");
             sc.incrementPlayerTotalScore(LOWER_SECTION, score);
         } else {
             Log.w(TAG, "Check ScoreField Key, something is screwed up here! Key:" + this.key);
@@ -125,11 +130,11 @@ public class ScoreField {
     public void refreshView() {
         // If this ScoreField has a saved score, it should display the stored value in black.
         if (hasScore) {
-            this.tv.setTextColor(context.getResources().getColor(R.color.used_scorepad_field));
+            this.tv.setTextColor(this.context.getResources().getColor(R.color.used_scorepad_field));
             this.tv.setText(this.score);
         } else {
             // If this ScoreField does not have a saved score, it should display its temporary value in gray.
-            this.tv.setTextColor(context.getResources().getColor(R.color.available_scorepad_field));
+            this.tv.setTextColor(this.context.getResources().getColor(R.color.available_scorepad_field));
             this.tv.setText(this.tempScore);
         }
     }

@@ -33,9 +33,8 @@ public class GameActivity extends Activity {
         soundManager = new SoundManager(this);
         diceViews = new ArrayList<ImageView>();
 
-        // Initialize ScoreManager to set score to zero and get list of available score fields
-        scoreManager = new ScoreManager();
-        availableScoreIDs = scoreManager.getAvailableScoreFields();
+        // Initialize ScoreManager to set score to zero
+        scoreManager = new ScoreManager(this);
 
         // Apply dieTouchListener to Dice ImageViews and add to master list
         int[] resIds = {R.id.die_1_imageview, R.id.die_2_imageview, R.id.die_3_imageview, R.id.die_4_imageview, R.id.die_5_imageview};
@@ -46,7 +45,7 @@ public class GameActivity extends Activity {
         }
 
         // Apply scoreTouchListener to Score TextViews and set every resource ID as available as no scores are recorded yet.
-        int[] scoreResIDs = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.upper_bonus_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.bonus_yahtzee_value_textview, R.id.chance_value_textview};
+        int[] scoreResIDs = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.bonus_yahtzee_value_textview, R.id.chance_value_textview};
         for (int i=0; i<scoreResIDs.length; i++) {
             TextView tv = (TextView)findViewById(scoreResIDs[i]);
             tv.setOnClickListener(new scoreTouchListener());
@@ -89,8 +88,8 @@ public class GameActivity extends Activity {
 
         // Build score map of this hand and apply to UI
         scoreManager.calculateHand(board.getDiceValues());
-        HashMap<Integer, Integer> map = scoreManager.getScoreDisplayMap(ScoreManager.MAP_TYPE_HAND_SCORES);
-        updateScorepadDisplay(map, false);
+        //HashMap<Integer, Integer> map = scoreManager.getScoreDisplayMap(ScoreManager.MAP_TYPE_HAND_SCORES);
+        //updateScorepadDisplay(map, false);
 
         // Decrement roll counter and update roll counter on display
         rollCount--;
@@ -109,7 +108,7 @@ public class GameActivity extends Activity {
      */
     public void newRound() {
         // When a new round starts, we remove the temporary scores from the display by getting player's scoreMap and updating the display again
-        updateScorepadDisplay(scoreManager.getScoreDisplayMap(ScoreManager.MAP_TYPE_PLAYER_SCORES), true);
+        // updateScorepadDisplay(scoreManager.getScoreDisplayMap(ScoreManager.MAP_TYPE_PLAYER_SCORES), true);
 
         // Reset roll count and hold status on all dice
         rollCount = 3;
@@ -261,25 +260,24 @@ public class GameActivity extends Activity {
 
             // Get the value contained in this TextView
             TextView tv = (TextView) v;
+            int tag = Integer.parseInt(tv.getTag().toString());
             int value = Integer.parseInt(tv.getText().toString());
 
             Log.v(TAG, "scoreTouchListener fired! textview ID: " + tv.getId() + " & value: " + value);
 
             // If this field is available, write the score to the player's ScoreCard and end this round.
-            if (availableScoreIDs.contains(tv.getId())) {
-                int tag = Integer.parseInt(v.getTag().toString()); // Get the tag of this TextView
-                scoreManager.writeScore(tag, value); // Write the score
-                Log.v(TAG, "Wrote " + value + " to ScoreField ID " + tag);
+            if (!scoreManager.isScoreFieldSet(tag)) {
+                Log.v(TAG, "ScoreField " + tag + " is available! Locking this field...");
 
-                // Disable this score field from being used again during this game.
-                tv.setTextColor(getResources().getColor(R.color.used_scorepad_field)); // Set color
-                availableScoreIDs.remove(tv.getId());
+                // Write the score
+                scoreManager.writeScore(tag, value);
+                Log.v(TAG, "Wrote " + value + " to ScoreField ID " + tag);
 
                 // A Round is finished when a score is recorded, so start the next round.
                 newRound();
             } else {
                 // Do nothing! Can't write to the same score field twice.
-                Log.e(TAG, "Cannot write to field! Already in use.");
+                Log.e(TAG, "Cannot write to field " + tag + "! Already in use.");
             }
         }
     }

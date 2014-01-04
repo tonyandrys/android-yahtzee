@@ -3,8 +3,6 @@ package com.tonyandrys.yahtzee;
 import android.app.Activity;
 import android.util.Log;
 
-import java.util.Arrays;
-
 /**
  * com.tonyandrys.yahtzee -
  *
@@ -45,7 +43,7 @@ public class ScoreCard implements Scorable {
 
     // Scores that remain constant regardless of the value on the dice
     final static public int VALUE_FULL_HOUSE = 25;
-    final static public int VALUE_TOP_HALF_BONUS = 35;
+    final static public int VALUE_UPPER_HALF_BONUS = 35;
     final static public int VALUE_YAHTZEE = 50;
     final static public int VALUE_YAHTZEE_BONUS = 100;
     final static public int VALUE_SM_STRAIGHT = 30;
@@ -92,24 +90,30 @@ public class ScoreCard implements Scorable {
      */
     public void setPlayerScore(int SCORE_FIELD, int value) {
         scores[SCORE_FIELD].setPlayerScore(value);
+
+        // After every score update, check to see if the upper bonus has been achieved.
+        // If the sum of all upper section scores >= 63, the player receives 35 extra points.
+        if (upperTotal >= BONUS_THRESHOLD) {
+            upperTotal += VALUE_UPPER_HALF_BONUS;
+            Log.v(TAG, "Bonus threshold has been reached! Player receives 35 extra points.");
+        }
     }
 
     /**
-     * Returns the player's current score, which is the sum of all values contained in fields that have been used.
+     * Checks for the availability of a ScoreField.
+     * @param SCORE_FIELD ScoreField ID
+     * @return true if ScoreField has a set value, false if it is still available
+     */
+    public boolean isScoreFieldSet(int SCORE_FIELD) {
+        return scores[SCORE_FIELD].isScoreSet();
+    }
+
+    /**
+     * Returns the player's current score, which is the sum of the upper and lower total scores.
      * @return
      */
     public int getPlayerScore() {
-        int sum = 0;
-        int[] sorted = scores;
-        Arrays.sort(sorted);
-        for (int i=(sorted.length-1); i>=0; i--) {
-            if (sorted[i] > 0) {
-                sum = sum + sorted[i];
-            } else if (sorted[i] == 0 || sorted[i] == -1) {
-                break;
-            }
-        }
-        return sum;
+        return upperTotal + lowerTotal;
     }
 
     /**
@@ -130,7 +134,26 @@ public class ScoreCard implements Scorable {
         }
     }
 
+    /**
+     * Applies temporary values calculated by ScoreManager to the ScoreFields in this ScoreCard.
+     */
+    public void applyHandScores(int[] handScores) {
+        for (int i=0; i<handScores.length; i++) {
+            // Get this ScoreField
+            ScoreField sf = scores[i];
+
+            // If this ScoreField does not yet have a permanent score set, it should display a temp score for the user.
+            if (!sf.isScoreSet()) {
+                sf.setTempScore(handScores[i]);
+                Log.v(TAG, "ScoreField (key=" + sf.getKey() + ") temp value set to " + handScores[i]);
+            } else {
+                Log.v(TAG, "ScoreField (key=" + sf.getKey() + ") has a perm value, ignoring temp value.");
+            }
+        }
+    }
+
     public String getPlayerName() {
+
         return this.playerName;
     }
 
