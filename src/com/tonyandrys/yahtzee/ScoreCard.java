@@ -53,13 +53,13 @@ public class ScoreCard implements Scorable {
     *  A player's scores are stored as an ScoreField Array of length 13- the number of user editable fields on the scorecard. Format:
     *  [ones, twos, threes, fours, fives, sixes, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Chance, Bonus Yahtzee]
     */
-    ScoreField[] scores;
-    int upperTotal;
-    int lowerTotal;
-    int totalScore;
+    private ScoreField[] scores;
+    private int upperTotal;
+    private int lowerTotal;
+    private int totalScore;
 
-    boolean isBonusApplied;
-    String playerName;
+    private boolean isBonusApplied;
+    private String playerName;
 
 
     public ScoreCard(Activity a) {
@@ -72,6 +72,8 @@ public class ScoreCard implements Scorable {
 
         // Set player name to default value for now
         playerName = "NAME";
+
+        upperTotal = 40;
     }
 
     /**
@@ -91,11 +93,12 @@ public class ScoreCard implements Scorable {
     public void setPlayerScore(int SCORE_FIELD, int value) {
         scores[SCORE_FIELD].setPlayerScore(value);
 
-        // After every score update, check to see if the upper bonus has been achieved.
-        // If the sum of all upper section scores >= 63, the player receives 35 extra points.
-        if (upperTotal >= BONUS_THRESHOLD) {
-            upperTotal += VALUE_UPPER_HALF_BONUS;
-            Log.v(TAG, "Bonus threshold has been reached! Player receives 35 extra points.");
+        // Check bonus status if it has not already been applied to the player's score
+        if ((!isBonusApplied) && (upperTotal >= ScoreCard.BONUS_THRESHOLD)) {
+            // If upper half total >= bonus threshold, add the bonus value to the player's upper half score.
+            upperTotal += 35;
+            Log.v(TAG, "Upper score threshold reached! Bonus has been applied to the player's score.");
+            setBonusApplied(true);
         }
     }
 
@@ -112,7 +115,7 @@ public class ScoreCard implements Scorable {
      * Returns the player's current score, which is the sum of the upper and lower total scores.
      * @return
      */
-    public int getPlayerScore() {
+    public int getTotalScore() {
         return upperTotal + lowerTotal;
     }
 
@@ -150,6 +153,22 @@ public class ScoreCard implements Scorable {
                 Log.v(TAG, "ScoreField (key=" + sf.getKey() + ") has a perm value, ignoring temp value.");
             }
         }
+    }
+
+    /**
+     * Sets the state of the upper section bonus flag.
+     * @param isBonusApplied true if the bonus has been applied, false if it has not. Default is false.
+     */
+    public void setBonusApplied(boolean isBonusApplied) {
+        this.isBonusApplied = isBonusApplied;
+    }
+
+    /**
+     * Gets the status of the upper section bonus flag.
+     * @return true if upper section bonus has been applied, false if it has not been applied.
+     */
+    public boolean isBonusApplied() {
+        return this.isBonusApplied;
     }
 
     public String getPlayerName() {

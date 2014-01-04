@@ -22,10 +22,6 @@ public class ScoreManager {
 
     private final String TAG = ScoreManager.class.getName();
 
-    // Map Type constants used for buildMap().
-    final static public int MAP_TYPE_PLAYER_SCORES = 1;
-    final static public int MAP_TYPE_HAND_SCORES = 2;
-
     // Dice counts necessary to score certain combinations
     final static public int COUNT_THREE_OF_A_KIND = 3;
     final static public int COUNT_FOUR_OF_A_KIND = 4;
@@ -56,8 +52,12 @@ public class ScoreManager {
         handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     }
 
+    /**
+     * Helper Method to allow GameActivity to access player's total score
+     * @return player's total score as an integer
+     */
     public int getPlayerScore() {
-        return playerScoreCard.getPlayerScore();
+        return playerScoreCard.getTotalScore();
     }
 
     // HEY LISTEN!
@@ -109,7 +109,8 @@ public class ScoreManager {
      */
     public void calculateHand(int[] diceValues) {
 
-        // Clear handScores values from last turn, if they exist.
+        // Clear handScores values from last turn.
+        handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         clearHandScores();
 
         // Enumerate the dice in the hand and sort them by their values
@@ -120,6 +121,9 @@ public class ScoreManager {
         tabulateTopHalf(countList); // Calculate the top half score
         tabulateStraights(diceValues); // Calculate straights if they exist
         tabulateBottomHalf(countList); // Calculate the bottom half score
+
+        // fill ScoreFields on screen with calculated temp scores
+        playerScoreCard.applyHandScores(handScores);
 
     }
 
@@ -203,7 +207,7 @@ public class ScoreManager {
         // Sixes
         if (playerScoreCard.getPlayerScore(ScoreCard.SCORE_FIELD_SIXES) == ScoreCard.AVAILABLE_SCORE) {
             handScores[ScoreCard.SCORE_FIELD_SIXES] = countList.get(5) * 6;
-            Log.v(TAG, "Sixes: " + playerScoreCard.getPlayerScore(ScoreCard.SCORE_FIELD_SIXES));
+            Log.v(TAG, "Sixes: " + handScores[ScoreCard.SCORE_FIELD_SIXES]);
         }
 
     }
@@ -342,6 +346,14 @@ public class ScoreManager {
     }
 
     /**
+     * Checks the state of the bonus flag on the player's scorecard and returns its state.
+     * @return true if bonus has been applied, false if it has not yet been applied.
+     */
+    public boolean isBonusApplied() {
+        return playerScoreCard.isBonusApplied();
+    }
+
+    /**
      * Clears any information in the hand scores array to be ready for the next calculation.
      */
     public void clearHandScores() {
@@ -350,8 +362,8 @@ public class ScoreManager {
     }
 
     public int getTotalScore() {
-        Log.v(TAG, "Total score is " + playerScoreCard.getPlayerScore());
-        return playerScoreCard.getPlayerScore();
+        Log.v(TAG, "Total score is " + playerScoreCard.getTotalScore());
+        return playerScoreCard.getTotalScore();
     }
 
     public void writeScore(int SCORE_FIELD, int value) {

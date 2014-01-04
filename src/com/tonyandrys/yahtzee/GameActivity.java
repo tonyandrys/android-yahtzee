@@ -32,6 +32,17 @@ public class GameActivity extends Activity {
         board = new Board(this, new Random());
         soundManager = new SoundManager(this);
         diceViews = new ArrayList<ImageView>();
+        int[] scoreResIDs = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.chance_value_textview, R.id.bonus_yahtzee_value_textview};
+
+        // Build key -> TextView lookup table for ScoreFields and store it in UITable
+        HashMap<Integer, Integer> tvLookupTable = new HashMap<Integer, Integer>();
+        Log.v(TAG, "Building key -> TextView Lookup Table");
+        for (int i=0; i<scoreResIDs.length; i++) {
+            tvLookupTable.put(i, scoreResIDs[i]);
+            Log.v(TAG, i + " -> " + scoreResIDs[i]);
+        }
+        UITable uiTable = ((UITable)getApplicationContext());
+        uiTable.setScoreTable(tvLookupTable);
 
         // Initialize ScoreManager to set score to zero
         scoreManager = new ScoreManager(this);
@@ -45,11 +56,10 @@ public class GameActivity extends Activity {
         }
 
         // Apply scoreTouchListener to Score TextViews and set every resource ID as available as no scores are recorded yet.
-        int[] scoreResIDs = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.bonus_yahtzee_value_textview, R.id.chance_value_textview};
         for (int i=0; i<scoreResIDs.length; i++) {
             TextView tv = (TextView)findViewById(scoreResIDs[i]);
             tv.setOnClickListener(new scoreTouchListener());
-            tv.setVisibility(View.INVISIBLE);
+            tv.setVisibility(View.VISIBLE);
             //availableScoreIDs.add(scoreResIDs[i]);
         }
 
@@ -117,6 +127,11 @@ public class GameActivity extends Activity {
             toggleDiceLock(i, false);
         }
 
+        // If bonus has been reached, show it to the scorecard display
+        if (scoreManager.isBonusApplied()) {
+            enableBonusDisplay(true);
+        }
+
         // Update Total
         updatePlayerTotal();
 
@@ -140,7 +155,7 @@ public class GameActivity extends Activity {
      * Updates the on-screen Scorepad to the values stored in an ArrayScoreCard
      * @param finalized True if permanent scores are being displayed, false if hand scores are being displayed
      */
-    public void updateScorepadDisplay(HashMap<Integer, Integer> scoreMap, boolean finalized) {
+    /* public void updateScorepadDisplay(HashMap<Integer, Integer> scoreMap, boolean finalized) {
         // k := iterator over the keys of scoreMap (resIDs)
         Iterator k = scoreMap.keySet().iterator();
         Log.v(TAG, "Updating Score Display...");
@@ -169,13 +184,12 @@ public class GameActivity extends Activity {
                 //Log.v(TAG, "Applied " + Integer.toString(value) + " to view " + resId);
             }
         }
-    }
+    } */
 
     /**
      * Gets the current total score of the player and updates the on-screen ScoreCard.
      */
     public void updatePlayerTotal() {
-
         // Get the player's total from ScoreManager
         String total = Integer.toString(scoreManager.getTotalScore());
 
@@ -223,6 +237,21 @@ public class GameActivity extends Activity {
             lock.setVisibility(View.INVISIBLE);
         }
 
+    }
+
+    /**
+     * Toggles the display of the upper section bonus field. When enabled, the field will display the bonus value stored in
+     * ScoreCard.VALUE_UPPER_HALF_BONUS. When disabled, the field will display zero.
+     */
+    public void enableBonusDisplay(boolean enableDisplay) {
+        Log.v(TAG, "Enabling bonus display on UI!");
+        TextView bonusTextView = (TextView)findViewById(R.id.upper_bonus_value_textview);
+        if (enableDisplay) {
+            bonusTextView.setText(Integer.toString(ScoreCard.VALUE_UPPER_HALF_BONUS));
+            // A cool popup window would be neat here...
+        } else {
+            bonusTextView.setText(Integer.toString(0));
+        }
     }
 
     /**

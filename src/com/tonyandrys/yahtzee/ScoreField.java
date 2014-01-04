@@ -11,7 +11,6 @@ package com.tonyandrys.yahtzee;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
-import android.widget.TableLayout;
 import android.widget.TextView;
 
 /**
@@ -56,11 +55,10 @@ public class ScoreField {
         this.tempScore = 0;
         this.context = activity.getApplicationContext();
 
-        // Find the TextView in the UI associated with this ScoreField
-        TableLayout tl = (TableLayout)activity.findViewById(R.id.scorepad_container_tablelayout);
-        Log.v(TAG, "TableLayout ID is "+ tl.getId());
-        this.tv = (TextView)tl.findViewWithTag(this.key);
-        assert(tl != null);
+        // Lookup and store a reference to the TextView associated with this ScoreField
+        UITable uiTable = ((UITable)context.getApplicationContext());
+        int textViewID = uiTable.getScoreTable().get(this.key);
+        this.tv = (TextView)activity.findViewById(textViewID);
         assert(this.tv != null);
     }
 
@@ -131,11 +129,11 @@ public class ScoreField {
         // If this ScoreField has a saved score, it should display the stored value in black.
         if (hasScore) {
             this.tv.setTextColor(this.context.getResources().getColor(R.color.used_scorepad_field));
-            this.tv.setText(this.score);
+            this.tv.setText(Integer.toString(this.score));
         } else {
             // If this ScoreField does not have a saved score, it should display its temporary value in gray.
             this.tv.setTextColor(this.context.getResources().getColor(R.color.available_scorepad_field));
-            this.tv.setText(this.tempScore);
+            this.tv.setText(Integer.toString(this.tempScore));
         }
     }
 }

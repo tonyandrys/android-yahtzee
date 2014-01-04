@@ -100,7 +100,7 @@
                       android:textSize="30sp" android:textColor="#000000"/>
             <TextView android:id="@+id/three_of_a_kind_value_textview" android:layout_column="3" android:textSize="30sp"
                       android:text="@string/unused_score" android:layout_marginLeft="10dp"
-                      android:layout_marginRight="10dp" android:tag="7" android:clickable="true"
+                      android:layout_marginRight="10dp" android:tag="6" android:clickable="true"
                       android:focusable="true" android:layout_width="wrap_content"
                       android:layout_height="wrap_content"/>
         </TableRow>
@@ -119,7 +119,7 @@
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:text="@string/unused_score" android:id="@+id/four_of_a_kind_value_textview"
                       android:layout_column="3" android:textSize="30sp" android:layout_marginLeft="10dp"
-                      android:layout_marginRight="10dp" android:tag="8" android:clickable="true"
+                      android:layout_marginRight="10dp" android:tag="7" android:clickable="true"
                       android:focusable="true"/>
         </TableRow>
         <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent">
@@ -137,7 +137,7 @@
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:text="@string/unused_score" android:id="@+id/full_house_value_textview"
                       android:layout_column="3" android:textSize="30sp" android:layout_marginLeft="10dp"
-                      android:layout_marginRight="10dp" android:tag="9" android:clickable="true"
+                      android:layout_marginRight="10dp" android:tag="8" android:clickable="true"
                       android:focusable="true"/>
         </TableRow>
         <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent">
@@ -155,7 +155,7 @@
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:text="@string/unused_score" android:id="@+id/sm_straight_value_textview"
                       android:layout_column="3" android:textSize="30sp" android:layout_marginLeft="10dp"
-                      android:layout_marginRight="10dp" android:tag="10" android:clickable="true"
+                      android:layout_marginRight="10dp" android:tag="9" android:clickable="true"
                       android:focusable="true"/>
         </TableRow>
         <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent">
@@ -173,7 +173,7 @@
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:text="@string/unused_score" android:id="@+id/lg_straight_value_textview"
                       android:layout_column="3" android:textSize="30sp" android:layout_marginLeft="10dp"
-                      android:layout_marginRight="10dp" android:tag="11" android:clickable="true"
+                      android:layout_marginRight="10dp" android:tag="10" android:clickable="true"
                       android:focusable="true"/>
         </TableRow>
         <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent">
@@ -191,7 +191,7 @@
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:text="@string/unused_score" android:id="@+id/yahtzee_value_textview"
                       android:layout_column="3" android:textSize="30sp" android:layout_marginLeft="10dp"
-                      android:layout_marginRight="10dp" android:tag="12" android:clickable="true"
+                      android:layout_marginRight="10dp" android:tag="11" android:clickable="true"
                       android:focusable="true"/>
         </TableRow>
         <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
@@ -202,8 +202,8 @@
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:text="@string/unused_score" android:id="@+id/upper_bonus_value_textview"
                       android:layout_column="1" android:textSize="30sp" android:layout_marginLeft="10dp"
-                      android:layout_marginRight="10dp" android:tag="6" android:clickable="true"
-                      android:focusable="true"/>
+                      android:layout_marginRight="10dp" android:clickable="true"
+                      android:focusable="true" android:textColor="@color/used_scorepad_field"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="B/Yahtzee"
                       android:id="@+id/textView16" android:layout_column="2" android:textSize="30sp"
                       android:textColor="#000000"/>
@@ -219,7 +219,7 @@
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:text="@string/unused_score" android:id="@+id/chance_value_textview"
                       android:layout_column="3" android:textSize="30sp" android:layout_marginLeft="10dp"
-                      android:layout_marginRight="10dp" android:tag="14" android:clickable="true"
+                      android:layout_marginRight="10dp" android:tag="12" android:clickable="true"
                       android:focusable="true"/>
         </TableRow>
         <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent"
