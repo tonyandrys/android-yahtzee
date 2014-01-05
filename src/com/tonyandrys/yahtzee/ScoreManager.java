@@ -39,7 +39,7 @@ public class ScoreManager {
 
 
     // Each score field's possible value based off of the values of the dice rolled (hand values) are calculated and stored in this array
-    // Format: [ones, twos, threes, fours, fives, sixes, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Bonus Yahtzee, Chance]
+    // Format: [ones, twos, threes, fours, fives, sixes, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Chance]
     int[] handScores;
 
     /**
@@ -49,7 +49,7 @@ public class ScoreManager {
         playerScoreCard = new ScoreCard(activity);
 
         // Create a blank integer array to store calculated hand values
-        handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     }
 
     /**
@@ -110,16 +110,16 @@ public class ScoreManager {
     public void calculateHand(int[] diceValues) {
 
         // Clear handScores values from last turn.
-        handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        handScores = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         clearHandScores();
 
-        // Enumerate the dice in the hand and sort them by their values
+        // Enumerate the dice in the hand and sort them by their values. 
         ArrayList<Integer> countList = enumerateHand(diceValues);
 
         // The following 3 functions will populate their respective portions of `handScores`. When tabulateBottomHalf()
         // is complete, the array will be filled.
         tabulateTopHalf(countList); // Calculate the top half score
-        tabulateStraights(diceValues); // Calculate straights if they exist
+        tabulateStraights(diceValues, countList); // Calculate straights if they exist
         tabulateBottomHalf(countList); // Calculate the bottom half score
 
         // fill ScoreFields on screen with calculated temp scores
@@ -215,8 +215,9 @@ public class ScoreManager {
     /**
      * Checks for straights in this hand of diceValues and writes them to the passed ScoreCard.
      * @param diceValues Set of dice values as integers
+     * @param diceCounts Set of dice counts as integers
      */
-    private void tabulateStraights(int[] diceValues) {
+    private void tabulateStraights(int[] diceValues, ArrayList<Integer> diceCounts) {
 
         Log.v(TAG, "Calculating Straight Values for this hand...");
 
@@ -234,12 +235,40 @@ public class ScoreManager {
 
         }
 
-        /* A Small Straight is represented in the TreeSet if it contains four integers AND the difference between the
-         * largest and smallest integers is 3. */
-        if ((playerScoreCard.getPlayerScore(ScoreCard.SCORE_FIELD_SM_STRAIGHT)) == ScoreCard.AVAILABLE_SCORE && (enumTree.size() == TREE_COUNT_SMALL_STRAIGHT) && (enumTree.last() - enumTree.first() == TREE_SMALL_STRAIGHT_DIFFERENCE)) {
+        // Disabling TreeSet calculation of Small Straight due to calculation bugs. Changing to a more naive approach for now.
+        // 3 possible Small Straight arrangements exist - 1,2,3,4 or 2,3,4,5 or 3,4,5,6. Therefore, if diceVals show that those dice exist somewhere in the hand, a small straight exists in the set of dice.
+        boolean smStrFound = false;
+
+        // Check for {1,2,3,4}
+        if ((diceCounts.get(0) >= 1) && (diceCounts.get(1) >= 1) && (diceCounts.get(2) >= 1) && (diceCounts.get(3) >= 1)) {
+            Log.v(TAG, "SMSTR: {1,2,3,4} found!");
+            smStrFound = true;
+        }
+
+        // Check for {2,3,4,5}
+        else if ((diceCounts.get(1) >= 1) && (diceCounts.get(2) >= 1) && (diceCounts.get(3) >= 1) && (diceCounts.get(4) >= 1)) {
+            Log.v(TAG, "SMSTR: {2,3,4,5} found!");
+            smStrFound = true;
+        }
+
+        // Check for {3,4,5,6}
+        else if ((diceCounts.get(2) >= 1) && (diceCounts.get(3) >= 1) && (diceCounts.get(4) >= 1) && (diceCounts.get(5) >= 1)) {
+            Log.v(TAG, "SMSTR: {3,4,5,6} found!");
+            smStrFound = true;
+        }
+
+        // Set result of small straight calculation to handScores field if it is available and a small straight was found above
+        if ( (playerScoreCard.getPlayerScore(ScoreCard.SCORE_FIELD_SM_STRAIGHT) == ScoreCard.AVAILABLE_SCORE) && (smStrFound) ) {
             handScores[ScoreCard.SCORE_FIELD_SM_STRAIGHT] = ScoreCard.VALUE_SM_STRAIGHT;
             Log.v(TAG, "SmStraight: " + handScores[ScoreCard.SCORE_FIELD_SM_STRAIGHT]);
         }
+
+        /* A Small Straight is represented in the TreeSet if it contains four integers AND the difference between the
+         * largest and smallest integers is 3. */
+        //if ((playerScoreCard.getPlayerScore(ScoreCard.SCORE_FIELD_SM_STRAIGHT)) == ScoreCard.AVAILABLE_SCORE && (enumTree.size() == TREE_COUNT_SMALL_STRAIGHT) && (enumTree.last() - enumTree.first() == TREE_SMALL_STRAIGHT_DIFFERENCE)) {
+        //    handScores[ScoreCard.SCORE_FIELD_SM_STRAIGHT] = ScoreCard.VALUE_SM_STRAIGHT;
+        //    Log.v(TAG, "SmStraight: " + handScores[ScoreCard.SCORE_FIELD_SM_STRAIGHT]);
+        //}
 
     }
 
@@ -357,15 +386,26 @@ public class ScoreManager {
      * Clears any information in the hand scores array to be ready for the next calculation.
      */
     public void clearHandScores() {
-        int[] blank = new int[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        int[] blank = new int[] {0,0,0,0,0,0,0,0,0,0,0,0,0};
         playerScoreCard.applyHandScores(blank);
     }
 
+    /**
+     * Retrieves the player's total score from their ScorePad.
+     * This method is primarily used as an interface between GameActivity and the player's ScoreCard object.
+     * @return Player's current total score (upper section + lower section + bonuses)
+     */
     public int getTotalScore() {
         Log.v(TAG, "Total score is " + playerScoreCard.getTotalScore());
         return playerScoreCard.getTotalScore();
     }
 
+    /**
+     * Sets the value of an arbitrary field on the scorepad to the passed value.
+     * This method is primarily used as an interface between GameActivity and the player's ScoreCard object.
+     * @param SCORE_FIELD ScoreField.SCORE_FIELD key, representing one of the 13 user-writable sections of the scorepad
+     * @param value Value to write to scorefield
+     */
     public void writeScore(int SCORE_FIELD, int value) {
         playerScoreCard.setPlayerScore(SCORE_FIELD, value);
         Log.v(TAG, "Wrote " + value + " to score field " + SCORE_FIELD);

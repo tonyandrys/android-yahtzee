@@ -32,7 +32,7 @@ public class GameActivity extends Activity {
         board = new Board(this, new Random());
         soundManager = new SoundManager(this);
         diceViews = new ArrayList<ImageView>();
-        int[] scoreResIDs = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.chance_value_textview, R.id.bonus_yahtzee_value_textview};
+        int[] scoreResIDs = {R.id.ones_value_textview, R.id.twos_value_textview, R.id.threes_value_textview, R.id.fours_value_textview, R.id.fives_value_textview, R.id.sixes_value_textview, R.id.three_of_a_kind_value_textview, R.id.four_of_a_kind_value_textview, R.id.full_house_value_textview, R.id.sm_straight_value_textview, R.id.lg_straight_value_textview, R.id.yahtzee_value_textview, R.id.chance_value_textview};
 
         // Build key -> TextView lookup table for ScoreFields and store it in UITable
         HashMap<Integer, Integer> tvLookupTable = new HashMap<Integer, Integer>();

@@ -210,7 +210,7 @@
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:text="@string/unused_score" android:id="@+id/bonus_yahtzee_value_textview"
                       android:layout_column="3" android:textSize="30sp" android:gravity="center_horizontal"
-                      android:tag="13" android:clickable="true" android:focusable="true"/>
+                      android:clickable="true" android:focusable="true" android:textColor="@color/used_scorepad_field"/>
         </TableRow>
         <TableRow android:layout_width="fill_parent" android:layout_height="fill_parent">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"

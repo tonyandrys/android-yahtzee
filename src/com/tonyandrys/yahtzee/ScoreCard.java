@@ -17,7 +17,7 @@ public class ScoreCard implements Scorable {
     public static final String TAG = ScoreCard.class.getName();
 
     // Number of possible fields on this ScoreCard
-    public static final int NUMBER_OF_FIELDS = 16;
+    public static final int NUMBER_OF_FIELDS = 13;
 
     // SCORE_FIELD Constants
     public static final int SCORE_FIELD_ONES = 0;
@@ -33,7 +33,6 @@ public class ScoreCard implements Scorable {
     public static final int SCORE_FIELD_LG_STRAIGHT = 10;
     public static final int SCORE_FIELD_YAHTZEE = 11;
     public static final int SCORE_FIELD_CHANCE = 12;
-    public static final int SCORE_FIELD_YAHTZEE_BONUS = 13;
 
     final public static int ZEROED_VALUE = -1;
     final public static int AVAILABLE_SCORE = 0;
@@ -50,8 +49,8 @@ public class ScoreCard implements Scorable {
     final static public int VALUE_LG_STRAIGHT = 40;
 
     /*
-    *  A player's scores are stored as an ScoreField Array of length 13- the number of user editable fields on the scorecard. Format:
-    *  [ones, twos, threes, fours, fives, sixes, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Chance, Bonus Yahtzee]
+    *  A player's scores are stored as an ScoreField Array of length 12- the number of user editable fields on the scorecard. Format:
+    *  [ones, twos, threes, fours, fives, sixes, 3/Kind, 4/Kind, Full House, Sm. Str, Lg. Str, Yahtzee, Chance]
     */
     private ScoreField[] scores;
     private int upperTotal;
@@ -59,21 +58,26 @@ public class ScoreCard implements Scorable {
     private int totalScore;
 
     private boolean isBonusApplied;
+    private boolean isYahtzeeApplied;
+    private int yahtzeeCount;
+
     private String playerName;
 
 
     public ScoreCard(Activity a) {
         // Create 13 scorefields, each representing a field on the scorecard.
-        scores = new ScoreField[] {new ScoreField(this, SCORE_FIELD_ONES, a, a), new ScoreField(this, SCORE_FIELD_TWOS, a, a), new ScoreField(this, SCORE_FIELD_THREES, a, a), new ScoreField(this, SCORE_FIELD_FOURS, a, a), new ScoreField(this, SCORE_FIELD_FIVES, a, a), new ScoreField(this, SCORE_FIELD_SIXES, a, a), new ScoreField(this, SCORE_FIELD_3_OF_A_KIND, a, a), new ScoreField(this, SCORE_FIELD_4_OF_A_KIND, a, a), new ScoreField(this, SCORE_FIELD_FULL_HOUSE, a, a), new ScoreField(this, SCORE_FIELD_SM_STRAIGHT, a, a), new ScoreField(this, SCORE_FIELD_LG_STRAIGHT, a, a), new ScoreField(this, SCORE_FIELD_YAHTZEE, a, a), new ScoreField(this, SCORE_FIELD_CHANCE, a, a), new ScoreField(this, SCORE_FIELD_YAHTZEE_BONUS, a, a)};
+        scores = new ScoreField[] {new ScoreField(this, SCORE_FIELD_ONES, a, a), new ScoreField(this, SCORE_FIELD_TWOS, a, a), new ScoreField(this, SCORE_FIELD_THREES, a, a), new ScoreField(this, SCORE_FIELD_FOURS, a, a), new ScoreField(this, SCORE_FIELD_FIVES, a, a), new ScoreField(this, SCORE_FIELD_SIXES, a, a), new ScoreField(this, SCORE_FIELD_3_OF_A_KIND, a, a), new ScoreField(this, SCORE_FIELD_4_OF_A_KIND, a, a), new ScoreField(this, SCORE_FIELD_FULL_HOUSE, a, a), new ScoreField(this, SCORE_FIELD_SM_STRAIGHT, a, a), new ScoreField(this, SCORE_FIELD_LG_STRAIGHT, a, a), new ScoreField(this, SCORE_FIELD_YAHTZEE, a, a), new ScoreField(this, SCORE_FIELD_CHANCE, a, a)};
 
         // Each player starts with zero points at the beginning of the game.
         totalScore = 0;
+
+        // Initialize upper section bonus & yahtzee flags and yahtzee count storage
         isBonusApplied = false;
+        isYahtzeeApplied = false;
+        yahtzeeCount = 0;
 
         // Set player name to default value for now
         playerName = "NAME";
-
-        upperTotal = 40;
     }
 
     /**
@@ -92,6 +96,14 @@ public class ScoreCard implements Scorable {
      */
     public void setPlayerScore(int SCORE_FIELD, int value) {
         scores[SCORE_FIELD].setPlayerScore(value);
+
+        // FIXME: THIS WILL NOT WORK FOR ALL INSTANCES!!
+        // if this is a valid yahtzee (worth 50 points), set the condition of the yahtzee flag
+        if ((SCORE_FIELD == SCORE_FIELD_YAHTZEE) && (value == VALUE_YAHTZEE)) {
+            isYahtzeeApplied = true;
+            incrementYahtzeeCount();
+            Log.v(TAG, "Valid Yahtzee has been written to SCoreCard! Existence is set to " + isYahtzeeApplied + " and YahtzeeCount is now " + yahtzeeCount);
+        }
 
         // Check bonus status if it has not already been applied to the player's score
         if ((!isBonusApplied) && (upperTotal >= ScoreCard.BONUS_THRESHOLD)) {
@@ -155,6 +167,10 @@ public class ScoreCard implements Scorable {
         }
     }
 
+    public boolean isBonusApplied() {
+        return this.isBonusApplied;
+    }
+
     /**
      * Sets the state of the upper section bonus flag.
      * @param isBonusApplied true if the bonus has been applied, false if it has not. Default is false.
@@ -167,8 +183,35 @@ public class ScoreCard implements Scorable {
      * Gets the status of the upper section bonus flag.
      * @return true if upper section bonus has been applied, false if it has not been applied.
      */
-    public boolean isBonusApplied() {
-        return this.isBonusApplied;
+
+    public boolean isYahtzeeApplied() {
+        return this.isYahtzeeApplied;
+    }
+
+    public void setYahtzeeApplied(boolean isYahtzeeApplied) {
+        this.isYahtzeeApplied = isYahtzeeApplied;
+    }
+
+    /**
+     * Increases the player's yahtzee count by 1.
+     */
+    public void incrementYahtzeeCount() {
+        yahtzeeCount += 1;
+    }
+
+    /**
+     * Calculates the value of the yahtzee bonus scorefield by considering how many yahtzees have been rolled so far in the game.
+     * Yahtzee Bonus Calculation: VALUE_YAHTZEE_BONUS * n, where n = #ofYahtzees and n >= 2.
+     * @return Value of Bonus Yahtzee scorefield on scorepad
+     */
+    public int getYahtzeeBonusValue() {
+        // yahtzeeCount must be 2 or more for a bonus yahtzee to apply.
+        if (yahtzeeCount < 2) {
+            return 0;
+        } else {
+            Log.v(TAG, "yahtzeeCount is " + yahtzeeCount + "! Apply yahtzee bonus of " + Integer.toString((yahtzeeCount * 100)));
+            return (yahtzeeCount * VALUE_YAHTZEE_BONUS);
+        }
     }
 
     public String getPlayerName() {
